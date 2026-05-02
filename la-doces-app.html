@@ -1028,6 +1028,55 @@
     }
 
 
+    // --- Sincronização com Banco de Dados (SQLite Backend) ---
+    async function carregarDadosDoBanco() {
+        try {
+            const r = await fetch('/api/store/livroReceitas');
+            if (r.ok) { const dados = await r.json(); if (dados) localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(dados)); }
+            
+            const p = await fetch('/api/store/pedidos');
+            if (p.ok) { const dados = await p.json(); if (dados) localStorage.setItem('appTrufas_pedidos', JSON.stringify(dados)); }
+            
+            const g = await fetch('/api/store/gastos');
+            if (g.ok) { const dados = await g.json(); if (dados) localStorage.setItem('appTrufas_gastos', JSON.stringify(dados)); }
+            
+            livroDeReceitas = JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {};
+            listaPedidos = JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [];
+            listaGastos = JSON.parse(localStorage.getItem('appTrufas_gastos')) || [];
+            
+            atualizarDropdown();
+            atualizarInterface();
+            atualizarDropdownReceitasPedidos();
+            atualizarListaPedidos();
+            if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
+        } catch(e) {
+            console.log("Servidor backend não encontrado. Usando dados locais (LocalStorage).");
+        }
+    }
+
+    async function salvarNoBanco(key, dados) {
+        try {
+            await fetch(`/api/store/${key}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+        } catch(e) {
+            console.log("Erro ao sincronizar com servidor.", e);
+        }
+    }
+
+    const _originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+        _originalSetItem.apply(this, arguments);
+        try {
+            if (key === 'appTrufas_livroReceitas') salvarNoBanco('livroReceitas', JSON.parse(value));
+            if (key === 'appTrufas_pedidos') salvarNoBanco('pedidos', JSON.parse(value));
+            if (key === 'appTrufas_gastos') salvarNoBanco('gastos', JSON.parse(value));
+        } catch(e) {}
+    };
+    // ---------------------------------------------------------
+
     let listaDeIngredientes = [];
     let livroDeReceitas = JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {};
     let listaPedidos = JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [];
@@ -1053,6 +1102,8 @@
         document.documentElement.setAttribute('data-theme', temaSalvo);
         const seletorTema = document.getElementById('seletorTema');
         if (seletorTema) seletorTema.value = temaSalvo;
+
+        carregarDadosDoBanco(); // Carrega os dados do SQLite (servidor)
 
         document.getElementById('horasTrabalhadas').value = localStorage.getItem('appTrufas_horas') || '';
         document.getElementById('valorHora').value = localStorage.getItem('appTrufas_valorHora') || '';

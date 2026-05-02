@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precificação de Trufas - Livro de Receitas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --cor-fundo: #f9fafb;
+            --cor-fundo-painel: #ffffff;
+            --cor-principal: #111827;
+            --cor-secundaria: #4b5563;
+            --cor-destaque: #db2777; /* Rosa moderno para doceria */
+            --cor-destaque-hover: #be185d;
+            --cor-borda: #e5e7eb;
+            --cor-sucesso: #10b981;
+            --cor-erro: #ef4444;
+            
+            --cor-fundo-alt: #f3f4f6;
+            --cor-fundo-fieldset: #fafafa;
+            --cor-fundo-tabela-header: #f9fafb;
+            --cor-fundo-tabela-hover: #f9fafb;
+            
+            --cor-fundo-sucesso-light: #e8f5e9;
+            --cor-borda-sucesso: #2e7d32;
+            --cor-texto-sucesso: #2e7d32;
+            
+            --cor-fundo-erro-light: #ffebee;
+            --cor-borda-erro: #c62828;
+            --cor-texto-erro: #c62828;
+            
+            --cor-fundo-info-light: #e3f2fd;
+            --cor-borda-info: #1565c0;
+            --cor-texto-info: #1565c0;
+
+            --cor-fundo-destaque-light: #fdf2f8;
+            --cor-borda-destaque-light: #fbcfe8;
+
+            --cor-tabs: rgba(255, 255, 255, 0.95);
+
+            --sombra-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --sombra-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --raio-borda: 12px;
+            --raio-borda-sm: 8px;
+        }
+
+        [data-theme="dark"] {
+            --cor-fundo: #111827;
+            --cor-fundo-painel: #1f2937;
+            --cor-principal: #f9fafb;
+            --cor-secundaria: #9ca3af;
+            --cor-destaque: #f43f5e;
+            --cor-destaque-hover: #e11d48;
+            --cor-borda: #374151;
+            --cor-fundo-alt: #111827;
+            --cor-fundo-fieldset: #1f2937;
+            --cor-fundo-tabela-header: #111827;
+            --cor-fundo-tabela-hover: #374151;
+            
+            --cor-fundo-sucesso-light: #064e3b;
+            --cor-borda-sucesso: #34d399;
+            --cor-texto-sucesso: #34d399;
+            
+            --cor-fundo-erro-light: #7f1d1d;
+            --cor-borda-erro: #f87171;
+            --cor-texto-erro: #f87171;
+            
+            --cor-fundo-info-light: #1e3a8a;
+            --cor-borda-info: #60a5fa;
+            --cor-texto-info: #60a5fa;
+
+            --cor-fundo-destaque-light: #831843;
+            --cor-borda-destaque-light: #f43f5e;
+
+            --cor-tabs: rgba(31, 41, 55, 0.95);
+
+            --sombra-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --sombra-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="black"] {
+            --cor-fundo: #000000;
+            --cor-fundo-painel: #0a0a0a;
+            --cor-principal: #ffffff;
+            --cor-secundaria: #a3a3a3;
+            --cor-destaque: #ff2473;
+            --cor-destaque-hover: #e00052;
+            --cor-borda: #262626;
+            --cor-fundo-alt: #000000;
+            --cor-fundo-fieldset: #0a0a0a;
+            --cor-fundo-tabela-header: #000000;
+            --cor-fundo-tabela-hover: #171717;
+
+            --cor-fundo-sucesso-light: #002b12;
+            --cor-borda-sucesso: #10b981;
+            --cor-texto-sucesso: #10b981;
+            
+            --cor-fundo-erro-light: #3b0000;
+            --cor-borda-erro: #ef4444;
+            --cor-texto-erro: #ef4444;
+            
+            --cor-fundo-info-light: #00153b;
+            --cor-borda-info: #3b82f6;
+            --cor-texto-info: #3b82f6;
+
+            --cor-fundo-destaque-light: #3b001a;
+            --cor-borda-destaque-light: #ff2473;
+
+            --cor-tabs: rgba(10, 10, 10, 0.95);
+
+            --sombra-card: none;
+            --sombra-hover: 0 0 15px rgba(255, 36, 115, 0.2);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-principal);
+            margin: 0;
+            padding: 1rem;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--cor-principal);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media(min-width: 768px) {
+            .grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                align-items: start;
+            }
+            h1 { font-size: 2.25rem; }
+            body { padding: 2rem; }
+        }
+
+        .painel {
+            background: var(--cor-fundo-painel);
+            padding: 1.5rem;
+            border-radius: var(--raio-borda);
+            box-shadow: var(--sombra-card);
+            border: 1px solid var(--cor-borda);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .painel:hover {
+            box-shadow: var(--sombra-hover);
+        }
+
+        h2, h3 {
+            font-weight: 600;
+            color: var(--cor-principal);
+            border-bottom: 1px solid var(--cor-borda);
+            padding-bottom: 0.75rem;
+            margin-top: 0;
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+            letter-spacing: -0.025em;
+        }
+
+        .gerenciar-receita {
+            background-color: var(--cor-fundo-alt);
+            padding: 1.25rem;
+            border-radius: var(--raio-borda-sm);
+            margin-bottom: 1.5rem;
+            border: 1px dashed var(--cor-borda);
+        }
+
+        .gerenciar-receita h3 {
+            border: none;
+            padding-bottom: 0;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .form-grupo {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: var(--cor-secundaria);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-borda-sm);
+            box-sizing: border-box;
+            background-color: var(--cor-fundo-painel);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--cor-principal);
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--cor-destaque);
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.15);
+        }
+
+        input:disabled {
+            background-color: var(--cor-fundo-alt);
+            color: #9ca3af;
+        }
+
+        .input-com-unidade { 
+            display: flex; 
+            gap: 0.5rem; 
+        }
+
+        .input-com-unidade input { flex: 2; }
+        .input-com-unidade select { flex: 1; }
+
+        .area1-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media(min-width: 600px) {
+            .area1-grid { grid-template-columns: 1fr 1fr; }
+            .area1-grid .span-2 { grid-column: span 2; }
+            .gerenciar-receita .form-grupo { display: flex; gap: 1rem; }
+        }
+
+        .botoes-receita {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        @media(min-width: 600px) {
+            .botoes-receita { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        button {
+            background-color: var(--cor-destaque);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: var(--raio-borda-sm);
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button:hover { 
+            background-color: var(--cor-destaque-hover); 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-remover {
+            background-color: var(--cor-erro);
+        }
+        .btn-remover:hover { background-color: #dc2626; }
+
+        .btn-secundario {
+            background-color: var(--cor-secundaria);
+        }
+        .btn-secundario:hover { background-color: #374151; }
+
+        fieldset {
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-borda-sm);
+            padding: 1.25rem;
+            margin: 0 0 1.5rem 0;
+            background-color: var(--cor-fundo-fieldset);
+        }
+
+        legend {
+            padding: 0 0.75rem;
+            font-weight: 600;
+            color: var(--cor-secundaria);
+            background-color: var(--cor-fundo-fieldset);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Tabelas Responsivas */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--raio-borda-sm);
+            border: 1px solid var(--cor-borda);
+            margin-bottom: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 600px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        th {
+            background-color: var(--cor-fundo-tabela-header);
+            color: var(--cor-secundaria);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr:hover {
+            background-color: var(--cor-fundo-tabela-header);
+        }
+
+        .resumo-linha {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem 0;
+            border-bottom: 1px dashed var(--cor-borda);
+            font-size: 0.95rem;
+        }
+
+        .resumo-linha strong { color: var(--cor-principal); font-size: 1.05rem; }
+
+        .preco-final-caixa {
+            background-color: var(--cor-fundo-destaque-light);
+            border: 1px solid var(--cor-borda-destaque-light);
+            padding: 1.25rem;
+            text-align: center;
+            border-radius: var(--raio-borda-sm);
+            margin-top: 1.5rem;
+        }
+
+        .preco-final-caixa span {
+            display: block;
+            color: var(--cor-destaque);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .preco-final-valor {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--cor-destaque);
+            margin-top: 0.5rem;
+            line-height: 1;
+        }
+
+        /* --- Notificações --- */
+        #notification-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .notification {
+            padding: 1rem 1.25rem;
+            border-radius: var(--raio-borda-sm);
+            color: white;
+            font-weight: 500;
+            font-size: 0.95rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification.success { background-color: var(--cor-sucesso); }
+        .notification.error { background-color: var(--cor-erro); }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            box-shadow: none;
+            padding: 0;
+            width: auto;
+            opacity: 0.8;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+            transform: none;
+            box-shadow: none;
+            background: none;
+        }
+
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideOut { to { opacity: 0; transform: translateX(100%); } }
+
+        /* --- Modal --- */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: var(--cor-fundo-painel);
+            padding: 2rem;
+            border-radius: var(--raio-borda);
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 400px;
+            width: 100%;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-content p {
+            font-size: 1.1rem;
+            color: var(--cor-principal);
+            margin: 0 0 1.5rem 0;
+            font-weight: 500;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media(min-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* --- Menu de Abas (Bottom Nav no Mobile) --- */
+        body {
+            padding-bottom: 5rem; /* Espaço para o menu fixo no celular */
+        }
+
+        .tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .acoes-header {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .acoes-header button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .tabs {
+            position: fixed;
+            bottom: 1.5rem; /* Descola do fundo da tela */
+            left: 50%;
+            transform: translateX(-50%); /* Centraliza na tela */
+            width: 90%; /* Não ocupa 100% da largura, deixando margens nas laterais */
+            max-width: 400px; /* Limita a largura em telas intermediárias antes do break de desktop */
+            background: var(--cor-tabs); /* Leve transparência para dar o tom moderno de dock */
+            backdrop-filter: blur(10px); /* Efeito de vidro (glassmorphism) típico de sistema nativo */
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Sombra difusa e elegante estilo macOS */
+            z-index: 1000;
+            padding: 0.5rem; /* Padding reduzido, apenas o contorno dos botões */
+            border: 1px solid rgba(0,0,0, 0.05); /* Borda clarinha quase invisível */
+            border-radius: 2rem; /* Cantos totalmente arredondados no contêiner principal */
+        }
+
+        .tab-button {
+            background-color: transparent;
+            color: var(--cor-secundaria);
+            border: none;
+            padding: 0.625rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 1.5rem; /* Botões arredondados dentro do dock arredondado */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            min-height: 3.5rem; /* Área de clique confortável preservada */
+        }
+        
+        .tab-icon {
+            font-size: 1.75rem; /* Ícone grande mantido para celular */
+            transition: transform 0.2s ease; /* Animação no hover do ícone */
+        }
+        
+        .tab-label {
+            display: none; /* Mantém texto escondido no celular */
+        }
+
+        .tab-button:hover, .tab-button.active {
+            color: var(--cor-destaque);
+            background-color: var(--cor-fundo-destaque-light); /* Leve destaque de fundo no ícone ativo */
+            transform: translateY(-2px); /* Efeito de levitar estilo Dock */
+        }
+        
+        .tab-button:active {
+            transform: scale(0.95); /* Efeito físico de apertar o botão */
+        }
+
+        @media(min-width: 768px) {
+            body {
+                padding-bottom: 2rem; /* Reseta o padding no desktop */
+            }
+            .tabs-container {
+                justify-content: space-between;
+                background: var(--cor-fundo-painel);
+                padding: 0.75rem 1rem;
+                border-radius: var(--raio-borda);
+                box-shadow: var(--sombra-card);
+                border: 1px solid var(--cor-borda);
+            }
+            .acoes-header {
+                width: auto;
+            }
+            .acoes-header button {
+                flex: none;
+                width: auto;
+            }
+            .tabs {
+                position: static;
+                width: auto;
+                box-shadow: none;
+                padding: 0;
+                border: none;
+                background: transparent;
+                justify-content: flex-start;
+                gap: 0.5rem;
+                min-height: auto;
+                transform: none; /* Reseta o transform do mobile */
+                border-radius: 0;
+            }
+            .tab-button {
+                flex-direction: row;
+                font-size: 1rem;
+                padding: 0.75rem 1.5rem;
+                min-height: auto;
+                border-radius: var(--raio-borda-sm); /* Retorna o arredondamento padrão no PC */
+            }
+            .tab-icon {
+                font-size: 1.25rem; /* Tamanho padrão no PC */
+            }
+            .tab-label {
+                display: inline; /* Mostra o texto no PC */
+            }
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Ajustes específicos para Selects de Status na Tabela */
+        select.status-select {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 9999px; /* Pill shape */
+            cursor: pointer;
+            box-shadow: none;
+            border: 2px solid transparent;
+            text-align: center;
+            appearance: none;
+        }
+
+        /* Oculta botão de remover pequeno nas tabelas mobile */
+        td .btn-remover {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+        }
+    </style></head>
+<body>
+<div id="notification-container"></div>
+
+<div id="confirm-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <p id="confirm-modal-text"></p>
+        <div class="modal-buttons">
+            <button id="confirm-modal-yes" class="btn-remover">Sim</button>
+            <button id="confirm-modal-no" class="btn-secundario">Não</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h1>La-Doces <span style="font-weight: 300; color: var(--cor-secundaria); font-size: 1.25rem; display: block; margin-top: 0.25rem;">Gestão de Vendas e Precificação</span></h1>
+    
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('aba-receitas')">
+                <span class="tab-icon">📋</span>
+                <span class="tab-label">Receitas</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('aba-pedidos')">
+                <span class="tab-icon">🛒</span>
+                <span class="tab-label">Encomendas</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('aba-financeiro')">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Financeiro</span>
+            </button>
+        </div>
+        <div class="acoes-header">
+            <select id="seletorTema" onchange="alterarTema(this.value)" style="padding: 0.5rem; border-radius: var(--raio-borda-sm); background-color: var(--cor-fundo-painel); color: var(--cor-principal); border: 1px solid var(--cor-borda); font-weight: 500; font-size: 0.9rem;">
+                <option value="light">☀️ Claro</option>
+                <option value="dark">🌙 Escuro (Cinza)</option>
+                <option value="black">🌑 Alto Contraste (Preto)</option>
+            </select>
+            <button onclick="exportarBackup()" class="btn-secundario">📥 Exportar</button>
+            <button onclick="document.getElementById('importarArquivo').click()" style="background-color: var(--cor-principal); color: var(--cor-fundo-painel); border: 1px solid var(--cor-secundaria);">📤 Importar</button>
+            <input type="file" id="importarArquivo" accept=".json" style="display: none;" onchange="importarBackup(event)">
+        </div>
+    </div>
+
+    <div id="aba-receitas" class="tab-content active">
+        <div class="grid">
+        <div class="painel">
+            <div class="gerenciar-receita">
+                <h3>Gerenciar Receita</h3>
+                <div class="area1-grid">
+                    <div class="form-grupo">
+                        <input type="text" id="nomeReceita" placeholder="Nome da Receita (Ex: Trufa de Maracujá)">
+                    </div>
+                    <div class="form-grupo">
+                        <select id="categoriaReceita">
+                            <option value="Trufas & Bombons">🍬 Trufas & Bombons</option>
+                            <option value="Copos & Bolos de Pote">🍨 Copos & Bolos de Pote</option>
+                            <option value="Bolos & Tortas">🎂 Bolos & Tortas</option>
+                            <option value="Ovos de Páscoa">🥚 Ovos de Páscoa</option>
+                            <option value="Salgados">🥟 Salgados</option>
+                            <option value="Outros" selected>📦 Outros</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grupo">
+                    <select id="listaReceitasSalvas"></select>
+                </div>
+                <div class="botoes-receita">
+                    <button onclick="salvarReceita()" class="btn-secundario">Salvar Receita Atual</button>
+                    <button onclick="carregarReceita()">Carregar / Editar</button>
+                    <button onclick="excluirReceita()" class="btn-remover">Excluir Receita</button>
+                </div>
+            </div>
+
+            <h2>Área 1: Ingredientes da Receita</h2>
+
+            <fieldset>
+                <legend>Dados do Ingrediente</legend>
+                <div class="area1-grid">
+                    <div class="form-grupo span-2">
+                        <label>Ingrediente</label>
+                        <input type="text" id="ingNome" placeholder="Ex: Chocolate Sicao">
+                    </div>
+                    <div class="form-grupo">
+                        <label>Preço(R$)</label>
+                        <input type="number" id="ingPreco" placeholder="Ex: 50.00" step="0.01">
+                    </div>
+                    <div class="form-grupo">
+                        <label>Peso/Volume da Embalagem</label>
+                        <div class="input-com-unidade">
+                            <input type="number" id="ingPeso" placeholder="Ex: 1000">
+                            <select id="ingUnidade">
+                                <option value="g">g</option>
+                                <option value="kg">kg</option>
+                                <option value="ml">ml</option>
+                                <option value="L">L</option>
+                                <option value="un">un</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Uso na Receita</legend>
+                <div class="form-grupo">
+                    <label>Qtd. Usada na Receita</label>
+                    <div class="input-com-unidade">
+                        <input type="number" id="ingUsado" placeholder="Ex: 400">
+                        <select id="ingUnidadeUsada">
+                            <option value="g">g</option>
+                            <option value="kg">kg</option>
+                            <option value="ml">ml</option>
+                            <option value="L">L</option>
+                            <option value="un">un</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="form-grupo">
+                <button onclick="adicionarIngrediente()">Adicionar Ingrediente</button>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelaIngredientes">
+                    <thead>
+                        <tr>
+                            <th>Ingrediente</th>
+                            <th>Preço Emb.</th>
+                            <th>Peso Emb.</th>
+                            <th>Qtd. Usada</th>
+                            <th>Custo Real</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaIngredientes"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="painel">
+            <h2>Área 2: Resumo e Precificação Final</h2>
+            <div class="area1-grid" style="margin-bottom: 20px;">
+                <div class="form-grupo">
+                    <label>Horas Trabalhadas</label>
+                    <input type="number" id="horasTrabalhadas" placeholder="Ex: 2" step="0.5" oninput="calcularValores()">
+                </div>
+                <div class="form-grupo">
+                    <label>Valor da Hora (R$)</label>
+                    <input type="number" id="valorHora" placeholder="Ex: 15.00" step="0.5" oninput="calcularValores()">
+                </div>
+                <div class="form-grupo">
+                    <label>Rendimento (Qtd. Trufas)</label>
+                    <input type="number" id="rendimento" placeholder="Ex: 30" oninput="calcularValores()">
+                </div>
+                <div class="form-grupo">
+                    <label>Margem de Lucro (%)</label>
+                    <input type="number" id="margemLucro" placeholder="Ex: 50" oninput="calcularValores()">
+                </div>
+            </div>
+            <div>
+                <div class="resumo-linha"><span>Custo Total dos Ingredientes</span><strong id="resCustoIngredientes">R$ 0,00</strong></div>
+                <div class="resumo-linha"><span>Custo da Mão de Obra</span><strong id="resMaoObra">R$ 0,00</strong></div>
+                <div class="resumo-linha"><span>Custos Fixos (Gás/Energia)</span><strong>10% (<span id="resCustosFixos">R$ 0,00</span>)</strong></div>
+                <div class="resumo-linha"><span>Custo Total da Produção</span><strong id="resCustoProducao">R$ 0,00</strong></div>
+                <div class="resumo-linha"><span>Custo Unitário por Trufa</span><strong id="resCustoUnitario">R$ 0,00</strong></div>
+            </div>
+            <div class="preco-final-caixa">
+                <span>Preço de Venda Sugerido</span>
+                <div class="preco-final-valor" id="resPrecoVenda">R$ 0,00</div>
+            </div>
+            <div style="margin-top: 20px;"><button onclick="iniciarAnalise()">Analisar Vendas</button></div>
+            <div id="analiseVendas" style="display: none; margin-top: 20px;">
+                <h3>Análise de Vendas</h3>
+                <div class="form-grupo">
+                    <label>Quantidade Vendida</label>
+                    <input type="number" id="qtdVendida" placeholder="Insira o total de vendas" oninput="analisarVendas()">
+                </div>
+                <div class="resumo-linha"><span>Lucro Real Obtido</span><strong id="resLucroReal">R$ 0,00</strong></div>
+                <div class="resumo-linha"><span>Itens Não Vendidos</span><strong id="resNaoVendidos">0</strong></div>
+                <div class="resumo-linha"><span>Prejuízo (Custo dos não vendidos)</span><strong id="resPrejuizo" style="color: #d32f2f;">R$ 0,00</strong></div>
+                <div style="width: 70%; max-width: 300px; margin: 20px auto;"><canvas id="graficoVendas"></canvas></div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="aba-pedidos" class="tab-content">
+        <div class="grid">
+            <div class="painel">
+                <h2>🛒 Novo Pedido</h2>
+                <div class="form-grupo">
+                    <label>Nome do Cliente</label>
+                    <input type="text" id="pedidoCliente" placeholder="Ex: Maria Silva">
+                </div>
+                <div class="form-grupo">
+                    <label>Data de Entrega</label>
+                    <input type="date" id="pedidoData">
+                </div>
+                <fieldset>
+                    <legend>Adicionar Item</legend>
+                    <div class="form-grupo">
+                        <label>Receita</label>
+                        <select id="pedidoReceita" onchange="atualizarResumoItemPedido()">
+                            <option value="">-- Selecione uma Receita --</option>
+                        </select>
+                    </div>
+                    <div class="area1-grid">
+                        <div class="form-grupo">
+                            <label>Quantidade</label>
+                            <input type="number" id="pedidoQtd" placeholder="Ex: 10" oninput="atualizarResumoItemPedido()">
+                        </div>
+                        <div class="form-grupo">
+                            <label>Preço Sugerido (Un.)</label>
+                            <input type="text" id="pedidoPrecoSugerido" disabled readonly>
+                        </div>
+                    </div>
+                    <button onclick="adicionarItemPedido()">Adicionar ao Pedido</button>
+                </fieldset>
+
+                <h3 style="margin-top: 15px;">Itens do Pedido Atual</h3>
+                <div class="table-container">
+                    <table id="tabelaItensPedido">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qtd</th>
+                                <th>Subtotal (Venda)</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaItensPedido"></tbody>
+                    </table>
+                </div>
+                
+                <div class="preco-final-caixa" style="margin-top: 15px;">
+                    <span>Total do Pedido</span>
+                    <div class="preco-final-valor" id="resTotalPedido">R$ 0,00</div>
+                </div>
+                <button style="margin-top: 15px;" onclick="salvarPedido()">Salvar Pedido</button>
+            </div>
+
+            <div class="painel">
+                <h2>📋 Lista de Encomendas</h2>
+                <div class="table-container">
+                    <table id="tabelaPedidos" style="min-width: 500px;">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Data</th>
+                                <th>Valor Total</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaPedidosCadastrados"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aba-financeiro" class="tab-content">
+        <div class="grid">
+            <div class="painel">
+                <h2>📊 Resumo Mensal</h2>
+                <div class="form-grupo">
+                    <label>Filtrar por Mês</label>
+                    <input type="month" id="filtroMesAno" onchange="atualizarDashboardFinanceiro()">
+                </div>
+                
+                <div class="dashboard-cards" style="margin-top: 15px;">
+                    <div class="preco-final-caixa" style="background-color: var(--cor-fundo-sucesso-light); border-color: var(--cor-borda-sucesso); margin-top: 0;">
+                        <span style="color: var(--cor-texto-sucesso);">Faturamento</span>
+                        <div class="preco-final-valor" id="dashFaturamento" style="color: var(--cor-texto-sucesso);">R$ 0,00</div>
+                    </div>
+                    <div class="preco-final-caixa" style="background-color: var(--cor-fundo-erro-light); border-color: var(--cor-borda-erro); margin-top: 0;">
+                        <span style="color: var(--cor-texto-erro);">Custos</span>
+                        <div class="preco-final-valor" id="dashCustos" style="color: var(--cor-texto-erro);">R$ 0,00</div>
+                    </div>
+                    <div class="preco-final-caixa" id="caixaLucro" style="background-color: var(--cor-fundo-info-light); border-color: var(--cor-borda-info); margin-top: 0;">
+                        <span id="labelLucro" style="color: var(--cor-texto-info);">Lucro Líquido</span>
+                        <div class="preco-final-valor" id="dashLucro" style="color: var(--cor-texto-info);">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div style="width: 100%; margin: 20px auto;">
+                    <canvas id="graficoFinanceiro"></canvas>
+                </div>
+            </div>
+
+            <div class="painel">
+                <h2>💸 Lançar Gasto Extra</h2>
+                <p style="font-size: 0.9em; color: #666;">Registre compras avulsas, embalagens, taxas, etc.</p>
+                <div class="form-grupo">
+                    <label>Descrição do Gasto</label>
+                    <input type="text" id="gastoDescricao" placeholder="Ex: Embalagens para presente">
+                </div>
+                <div class="area1-grid">
+                    <div class="form-grupo">
+                        <label>Data</label>
+                        <input type="date" id="gastoData">
+                    </div>
+                    <div class="form-grupo">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="gastoValor" placeholder="Ex: 35.50" step="0.01">
+                    </div>
+                </div>
+                <button onclick="adicionarGastoExtra()" style="background-color: #c62828;">Registrar Saída</button>
+
+                <h3 style="margin-top: 25px;">Tabela de Gastos do Mês</h3>
+                <div class="table-container">
+                    <table id="tabelaGastos">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaGastosExtras"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* --- Sistema de Notificação e Modal --- */
+    function showNotification(message, type = 'success') {
+        const container = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
+        `;
+        container.appendChild(notification);
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.5s forwards';
+            setTimeout(() => notification.remove(), 500);
+        }, 4000);
+    }
+
+    function showConfirm(text, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        const modalText = document.getElementById('confirm-modal-text');
+        const yesButton = document.getElementById('confirm-modal-yes');
+        const noButton = document.getElementById('confirm-modal-no');
+
+        modalText.textContent = text;
+        modal.style.display = 'flex';
+
+        // Use .cloneNode to remove old event listeners
+        const newYesButton = yesButton.cloneNode(true);
+        yesButton.parentNode.replaceChild(newYesButton, yesButton);
+
+        const newNoButton = noButton.cloneNode(true);
+        noButton.parentNode.replaceChild(newNoButton, noButton);
+
+        newYesButton.onclick = () => {
+            modal.style.display = 'none';
+            onConfirm();
+        };
+        newNoButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+    }
+
+
+    let listaDeIngredientes = [];
+    let livroDeReceitas = JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {};
+    let listaPedidos = JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [];
+    let listaGastos = JSON.parse(localStorage.getItem('appTrufas_gastos')) || [];
+    let itensPedidoAtual = [];
+    let graficoFinanceiroObj = null;
+
+        function alterarTema(tema) {
+        document.documentElement.setAttribute('data-theme', tema);
+        localStorage.setItem('appTrufas_tema', tema);
+        
+        // Atualiza gráficos se existirem
+        if (typeof analisarVendas === 'function' && document.getElementById('analiseVendas').style.display !== 'none') {
+            analisarVendas();
+        }
+        if (typeof atualizarDashboardFinanceiro === 'function') {
+            atualizarDashboardFinanceiro();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const temaSalvo = localStorage.getItem('appTrufas_tema') || 'light';
+        document.documentElement.setAttribute('data-theme', temaSalvo);
+        const seletorTema = document.getElementById('seletorTema');
+        if (seletorTema) seletorTema.value = temaSalvo;
+
+        document.getElementById('horasTrabalhadas').value = localStorage.getItem('appTrufas_horas') || '';
+        document.getElementById('valorHora').value = localStorage.getItem('appTrufas_valorHora') || '';
+        document.getElementById('rendimento').value = localStorage.getItem('appTrufas_rendimento') || '';
+        document.getElementById('margemLucro').value = localStorage.getItem('appTrufas_margem') || '';
+        
+        document.getElementById('ingNome').addEventListener('input', sugerirUnidade);
+
+        // Set current month for filter
+        const hoje = new Date();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const ano = hoje.getFullYear();
+        const inputMesAno = document.getElementById('filtroMesAno');
+        if (inputMesAno) {
+            inputMesAno.value = `${ano}-${mes}`;
+        }
+
+        atualizarDropdown();
+        atualizarInterface();
+        atualizarDropdownReceitasPedidos();
+        atualizarListaPedidos();
+        if (typeof atualizarDashboardFinanceiro === "function") {
+            atualizarDashboardFinanceiro();
+        }
+    });
+
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function converterParaUnidadeBase(valor, unidade) {
+        if (unidade === 'kg' || unidade === 'L') return valor * 1000;
+        return valor;
+    }
+
+    function sugerirUnidade() {
+        const nome = document.getElementById('ingNome').value.toLowerCase();
+        const unidadeSelect = document.getElementById('ingUnidade');
+        const unidadeUsadaSelect = document.getElementById('ingUnidadeUsada');
+
+        let sugestao = null;
+
+        if (nome.includes('leite') || nome.includes('creme') || nome.includes('liquido')) {
+            sugestao = 'ml';
+        } else if (nome.includes('chocolate') || nome.includes('açúcar') || nome.includes('farinha') || nome.includes('manteiga') || nome.includes('ninho') || nome.includes('coco')) {
+            sugestao = 'g';
+        } else if (nome.includes('ovo') || nome.includes('ovos') || nome.includes('unidade') || nome.includes('un.')) {
+            sugestao = 'un';
+        }
+
+        if (sugestao) {
+            unidadeSelect.value = sugestao;
+            unidadeUsadaSelect.value = sugestao;
+        }
+    }
+
+    function adicionarIngrediente() {
+        const nome = document.getElementById('ingNome').value;
+        const preco = parseFloat(document.getElementById('ingPreco').value);
+        const peso = parseFloat(document.getElementById('ingPeso').value);
+        const unidade = document.getElementById('ingUnidade').value;
+        const usado = parseFloat(document.getElementById('ingUsado').value);
+        const unidadeUsada = document.getElementById('ingUnidadeUsada').value;
+
+        if (!nome || isNaN(preco) || isNaN(peso) || isNaN(usado) || peso <= 0) {
+            showNotification("Preencha todos os campos do ingrediente corretamente.", "error");
+            return;
+        }
+
+        const pesoBase = converterParaUnidadeBase(peso, unidade);
+        const usadoBase = converterParaUnidadeBase(usado, unidadeUsada);
+        const custoReal = (preco / pesoBase) * usadoBase;
+
+        const ingrediente = { id: Date.now(), nome, precoEmb: preco, pesoEmb: peso, unidade, qtdUsada: usado, unidadeUsada, custoReal };
+        listaDeIngredientes.push(ingrediente);
+        
+        ['ingNome', 'ingPreco', 'ingPeso', 'ingUsado'].forEach(id => document.getElementById(id).value = '');
+        atualizarInterface();
+    }
+
+    function removerIngrediente(id) {
+        listaDeIngredientes = listaDeIngredientes.filter(ing => ing.id !== id);
+        atualizarInterface();
+    }
+
+    function atualizarInterface() {
+        const tbody = document.getElementById('listaIngredientes');
+        tbody.innerHTML = '';
+        let custoTotalDosIngredientes = 0;
+
+        if (listaDeIngredientes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhum ingrediente adicionado.</td></tr>';
+        } else {
+            listaDeIngredientes.forEach(ing => {
+                custoTotalDosIngredientes += ing.custoReal;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${ing.nome}</td>
+                        <td>${formatarMoeda(ing.precoEmb)}</td>
+                        <td>${ing.pesoEmb}${ing.unidade || ''}</td>
+                        <td>${ing.qtdUsada}${ing.unidadeUsada || ''}</td>
+                        <td><strong>${formatarMoeda(ing.custoReal)}</strong></td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarIngrediente(${ing.id})">Editar</button>
+                                <button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerIngrediente(${ing.id})">Remover</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        calcularValores(custoTotalDosIngredientes);
+    }
+
+    function editarIngrediente(id) {
+        const ingrediente = listaDeIngredientes.find(ing => ing.id === id);
+        if (ingrediente) {
+            document.getElementById('ingNome').value = ingrediente.nome;
+            document.getElementById('ingPreco').value = ingrediente.precoEmb;
+            document.getElementById('ingPeso').value = ingrediente.pesoEmb;
+            document.getElementById('ingUnidade').value = ingrediente.unidade;
+            document.getElementById('ingUsado').value = ingrediente.qtdUsada;
+            document.getElementById('ingUnidadeUsada').value = ingrediente.unidadeUsada;
+            
+            removerIngrediente(id);
+            window.scrollTo({ top: document.querySelector('.gerenciar-receita').offsetTop, behavior: 'smooth' });
+            showNotification("Ingrediente carregado para edição. Salve-o novamente quando terminar.", "success");
+        }
+    }
+
+    function calcularValores(custoIngredientesRecebido = null) {
+        let custoTotalIngredientes = custoIngredientesRecebido ?? listaDeIngredientes.reduce((acc, ing) => acc + ing.custoReal, 0);
+        const horasTrabalhadas = parseFloat(document.getElementById('horasTrabalhadas').value) || 0;
+        const valorHora = parseFloat(document.getElementById('valorHora').value) || 0;
+        const rendimento = parseFloat(document.getElementById('rendimento').value) || 0;
+        const margemLucro = parseFloat(document.getElementById('margemLucro').value) || 0;
+
+        localStorage.setItem('appTrufas_horas', horasTrabalhadas);
+        localStorage.setItem('appTrufas_valorHora', valorHora);
+        localStorage.setItem('appTrufas_rendimento', rendimento);
+        localStorage.setItem('appTrufas_margem', margemLucro);
+
+        const custoMaoObra = horasTrabalhadas * valorHora;
+        const custoParcial = custoTotalIngredientes + custoMaoObra;
+        const custosFixos = custoParcial * 0.10;
+        const custoTotalProducao = custoParcial + custosFixos;
+        
+        let custoUnitario = rendimento > 0 ? custoTotalProducao / rendimento : 0;
+        let precoVendaSugerido = rendimento > 0 ? custoUnitario * (1 + (margemLucro / 100)) : 0;
+
+        document.getElementById('resCustoIngredientes').innerText = formatarMoeda(custoTotalIngredientes);
+        document.getElementById('resMaoObra').innerText = formatarMoeda(custoMaoObra);
+        document.getElementById('resCustosFixos').innerText = formatarMoeda(custosFixos);
+        document.getElementById('resCustoProducao').innerText = formatarMoeda(custoTotalProducao);
+        document.getElementById('resCustoUnitario').innerText = formatarMoeda(custoUnitario);
+        document.getElementById('resPrecoVenda').innerText = formatarMoeda(precoVendaSugerido);
+    }
+
+    function getReceitaData(nome) {
+        const rec = livroDeReceitas[nome];
+        if (!rec) return null;
+        if (Array.isArray(rec)) return { categoria: 'Outros', ingredientes: rec };
+        return rec;
+    }
+
+    function renderizarDropdownCategorizado(selectId, placeholder) {
+        const select = document.getElementById(selectId);
+        if(!select) return;
+        select.innerHTML = `<option value="">-- ${placeholder} --</option>`;
+        
+        const categoriasMap = {};
+        for (const nomeReceita in livroDeReceitas) {
+            const data = getReceitaData(nomeReceita);
+            if (!categoriasMap[data.categoria]) categoriasMap[data.categoria] = [];
+            categoriasMap[data.categoria].push(nomeReceita);
+        }
+
+        for (const cat in categoriasMap) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = cat;
+            categoriasMap[cat].forEach(nomeReceita => {
+                const option = document.createElement('option');
+                option.value = nomeReceita;
+                option.textContent = nomeReceita;
+                optgroup.appendChild(option);
+            });
+            select.appendChild(optgroup);
+        }
+    }
+
+    function atualizarDropdown() {
+        renderizarDropdownCategorizado('listaReceitasSalvas', 'Receitas Salvas');
+        if (typeof atualizarDropdownReceitasPedidos === "function") {
+            atualizarDropdownReceitasPedidos();
+        }
+    }
+
+    function salvarReceita() {
+        const nomeReceita = document.getElementById('nomeReceita').value.trim();
+        const categoria = document.getElementById('categoriaReceita') ? document.getElementById('categoriaReceita').value : 'Outros';
+        if (!nomeReceita) {
+            showNotification("Por favor, dê um nome para a receita antes de salvar.", "error");
+            return;
+        }
+        livroDeReceitas[nomeReceita] = {
+            categoria: categoria,
+            ingredientes: [...listaDeIngredientes]
+        };
+        localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(livroDeReceitas));
+        showNotification(`Receita "${nomeReceita}" salva com sucesso!`);
+        atualizarDropdown();
+    }
+
+    function carregarReceita() {
+        const nomeReceita = document.getElementById('listaReceitasSalvas').value;
+        if (!nomeReceita) {
+            showNotification("Selecione uma receita para carregar.", "error");
+            return;
+        }
+        const data = getReceitaData(nomeReceita);
+        listaDeIngredientes = [...data.ingredientes];
+        document.getElementById('nomeReceita').value = nomeReceita;
+        if (document.getElementById('categoriaReceita')) {
+            document.getElementById('categoriaReceita').value = data.categoria;
+        }
+        atualizarInterface();
+    }
+
+    function excluirReceita() {
+        const nomeReceita = document.getElementById('listaReceitasSalvas').value;
+        if (!nomeReceita) {
+            showNotification("Selecione uma receita para excluir.", "error");
+            return;
+        }
+        
+        showConfirm(`Tem certeza que deseja excluir a receita "${nomeReceita}"?`, () => {
+            delete livroDeReceitas[nomeReceita];
+            localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(livroDeReceitas));
+            document.getElementById('nomeReceita').value = '';
+            listaDeIngredientes = [];
+            atualizarDropdown();
+            atualizarInterface();
+            showNotification(`Receita "${nomeReceita}" excluída.`);
+        });
+    }
+
+    let graficoVendas;
+    function iniciarAnalise() {
+        const rendimento = parseFloat(document.getElementById('rendimento').value) || 0;
+        if (rendimento <= 0) {
+            showNotification("Preencha o 'Rendimento' com um valor maior que zero para analisar.", "error");
+            return;
+        }
+        document.getElementById('analiseVendas').style.display = 'block';
+        analisarVendas();
+    }
+
+    function analisarVendas() {
+        const rendimento = parseFloat(document.getElementById('rendimento').value) || 0;
+        const parseCurrency = text => parseFloat(text.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+        const custoUnitario = parseCurrency(document.getElementById('resCustoUnitario').innerText);
+        const precoVenda = parseCurrency(document.getElementById('resPrecoVenda').innerText);
+        const qtdVendida = parseFloat(document.getElementById('qtdVendida').value) || 0;
+
+        const lucroReal = (precoVenda * qtdVendida) - (custoUnitario * qtdVendida);
+        const naoVendidos = rendimento - qtdVendida;
+        const prejuizo = naoVendidos > 0 ? naoVendidos * custoUnitario : 0;
+
+        document.getElementById('resLucroReal').innerText = formatarMoeda(lucroReal);
+        document.getElementById('resNaoVendidos').innerText = Math.max(0, naoVendidos);
+        document.getElementById('resPrejuizo').innerText = formatarMoeda(prejuizo);
+
+        const ctx = document.getElementById('graficoVendas').getContext('2d');
+        if (graficoVendas) graficoVendas.destroy();
+        
+        graficoVendas = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Vendidos', 'Não Vendidos'],
+                datasets: [{
+                    data: [qtdVendida, Math.max(0, naoVendidos)],
+                    backgroundColor: ['var(--cor-destaque)', '#d32f2f'],
+                    borderColor: getComputedStyle(document.documentElement).getPropertyValue('--cor-fundo').trim(),
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Proporção de Vendas' }
+                }
+            }
+        });
+    }
+
+    /* --- Sistema de Pedidos (Encomendas) --- */
+    
+    function atualizarDropdownReceitasPedidos() {
+        renderizarDropdownCategorizado('pedidoReceita', 'Selecione uma Receita');
+    }
+
+    function calcularPrecosReceita(nomeReceita) {
+        const data = getReceitaData(nomeReceita);
+        if (!data) return { custoUnitario: 0, precoVenda: 0 };
+        
+        const ingredientes = data.ingredientes || [];
+        const custoTotalIngredientes = ingredientes.reduce((acc, ing) => acc + (ing.custoReal || 0), 0);
+        
+        const horasTrabalhadas = parseFloat(localStorage.getItem('appTrufas_horas')) || 0;
+        const valorHora = parseFloat(localStorage.getItem('appTrufas_valorHora')) || 0;
+        const rendimento = parseFloat(localStorage.getItem('appTrufas_rendimento')) || 0;
+        const margemLucro = parseFloat(localStorage.getItem('appTrufas_margem')) || 0;
+
+        const custoMaoObra = horasTrabalhadas * valorHora;
+        const custoParcial = custoTotalIngredientes + custoMaoObra;
+        const custosFixos = custoParcial * 0.10;
+        const custoTotalProducao = custoParcial + custosFixos;
+        
+        const custoUnitario = rendimento > 0 ? custoTotalProducao / rendimento : 0;
+        const precoVenda = rendimento > 0 ? custoUnitario * (1 + (margemLucro / 100)) : 0;
+
+        return { custoUnitario, precoVenda };
+    }
+
+    function atualizarResumoItemPedido() {
+        const receitaNome = document.getElementById('pedidoReceita').value;
+        const qtd = parseFloat(document.getElementById('pedidoQtd').value) || 0;
+        
+        if (receitaNome) {
+            const precos = calcularPrecosReceita(receitaNome);
+            document.getElementById('pedidoPrecoSugerido').value = formatarMoeda(precos.precoVenda);
+        } else {
+            document.getElementById('pedidoPrecoSugerido').value = '';
+        }
+    }
+
+    function adicionarItemPedido() {
+        const receitaNome = document.getElementById('pedidoReceita').value;
+        const qtd = parseFloat(document.getElementById('pedidoQtd').value);
+        
+        if (!receitaNome || isNaN(qtd) || qtd <= 0) {
+            showNotification("Selecione uma receita e informe uma quantidade válida.", "error");
+            return;
+        }
+
+        const precos = calcularPrecosReceita(receitaNome);
+        const subtotalVenda = precos.precoVenda * qtd;
+        const subtotalCusto = precos.custoUnitario * qtd;
+
+        itensPedidoAtual.push({
+            id: Date.now(),
+            receita: receitaNome,
+            qtd: qtd,
+            precoUnitario: precos.precoVenda,
+            custoUnitario: precos.custoUnitario,
+            subtotalVenda: subtotalVenda,
+            subtotalCusto: subtotalCusto
+        });
+
+        document.getElementById('pedidoReceita').value = '';
+        document.getElementById('pedidoQtd').value = '';
+        document.getElementById('pedidoPrecoSugerido').value = '';
+        
+        atualizarTabelaItensPedido();
+    }
+
+    function removerItemPedido(id) {
+        itensPedidoAtual = itensPedidoAtual.filter(item => item.id !== id);
+        atualizarTabelaItensPedido();
+    }
+
+    function atualizarTabelaItensPedido() {
+        const tbody = document.getElementById('listaItensPedido');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        
+        let totalPedidoVenda = 0;
+        
+        if (itensPedidoAtual.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhum item adicionado ao pedido.</td></tr>';
+        } else {
+            itensPedidoAtual.forEach(item => {
+                totalPedidoVenda += item.subtotalVenda;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.receita}</td>
+                        <td>${item.qtd}</td>
+                        <td>${formatarMoeda(item.subtotalVenda)}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarItemPedido(${item.id})">Editar</button>
+                                <button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerItemPedido(${item.id})">Remover</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        document.getElementById('resTotalPedido').innerText = formatarMoeda(totalPedidoVenda);
+    }
+
+    function editarItemPedido(id) {
+        const item = itensPedidoAtual.find(i => i.id === id);
+        if (item) {
+            document.getElementById('pedidoReceita').value = item.receita;
+            document.getElementById('pedidoQtd').value = item.qtd;
+            atualizarResumoItemPedido();
+            removerItemPedido(id);
+            window.scrollTo({ top: document.querySelector('#aba-pedidos').offsetTop, behavior: 'smooth' });
+            showNotification("Item carregado para edição. Adicione-o novamente quando terminar.", "success");
+        }
+    }
+
+    function salvarPedido() {
+        const cliente = document.getElementById('pedidoCliente').value.trim();
+        const dataEntrega = document.getElementById('pedidoData').value;
+        
+        if (!cliente) {
+            showNotification("Informe o nome do cliente.", "error");
+            return;
+        }
+        
+        if (itensPedidoAtual.length === 0) {
+            showNotification("Adicione pelo menos um item ao pedido.", "error");
+            return;
+        }
+
+        const totalVenda = itensPedidoAtual.reduce((acc, item) => acc + item.subtotalVenda, 0);
+        const totalCusto = itensPedidoAtual.reduce((acc, item) => acc + item.subtotalCusto, 0);
+
+        const novoPedido = {
+            id: Date.now(),
+            cliente: cliente,
+            dataEntrega: dataEntrega,
+            itens: [...itensPedidoAtual],
+            totalVenda: totalVenda,
+            totalCusto: totalCusto,
+            status: 'Pendente',
+            dataCriacao: new Date().toISOString()
+        };
+
+        listaPedidos.push(novoPedido);
+        localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
+        
+        document.getElementById('pedidoCliente').value = '';
+        document.getElementById('pedidoData').value = '';
+        itensPedidoAtual = [];
+        atualizarTabelaItensPedido();
+        atualizarListaPedidos();
+        
+        showNotification("Pedido salvo com sucesso!");
+    }
+
+    function atualizarListaPedidos() {
+        const tbody = document.getElementById('listaPedidosCadastrados');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+
+        let listaInvertida = [...listaPedidos].reverse();
+
+        if (listaInvertida.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhuma encomenda cadastrada.</td></tr>';
+        } else {
+            listaInvertida.forEach(pedido => {
+                let statusCor = '#f57c00';
+                if (pedido.status === 'Entregue') statusCor = '#1976d2';
+                if (pedido.status === 'Pago') statusCor = '#2e7d32';
+
+                let selectStatus = `
+                    <select class="status-select" onchange="alterarStatusPedido(${pedido.id}, this.value)" style="background-color: ${statusCor}; color: white;">
+                        <option value="Pendente" ${pedido.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                        <option value="Entregue" ${pedido.status === 'Entregue' ? 'selected' : ''}>Entregue</option>
+                        <option value="Pago" ${pedido.status === 'Pago' ? 'selected' : ''}>Pago</option>
+                    </select>
+                `;
+
+                let dataFormatada = pedido.dataEntrega ? new Date(pedido.dataEntrega).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${pedido.cliente}</strong></td>
+                        <td>${dataFormatada}</td>
+                        <td><strong>${formatarMoeda(pedido.totalVenda)}</strong></td>
+                        <td>${selectStatus}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarPedido(${pedido.id})">Editar</button>
+                                <button style="background-color: #25D366; padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="gerarReciboWhatsApp(${pedido.id})">WhatsApp</button>
+                                <button class="btn-remover" onclick="excluirPedido(${pedido.id})" style="padding: 5px 10px; width: auto;">Excluir</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+    }
+    
+    function editarPedido(id) {
+        const pedido = listaPedidos.find(p => p.id === id);
+        if (pedido) {
+            document.getElementById('pedidoCliente').value = pedido.cliente;
+            document.getElementById('pedidoData').value = pedido.dataEntrega;
+            
+            itensPedidoAtual = [...pedido.itens];
+            atualizarTabelaItensPedido();
+            
+            excluirPedido(id, true); // Passo "true" para pular o confirm modal
+            window.scrollTo({ top: document.querySelector('#aba-pedidos').offsetTop, behavior: 'smooth' });
+            showNotification("Pedido carregado para edição. Salve-o novamente quando terminar.", "success");
+        }
+    }
+
+    function gerarReciboWhatsApp(id) {
+        const pedido = listaPedidos.find(p => p.id === id);
+        if (!pedido) return;
+
+        let texto = `Olá, *${pedido.cliente}*! Tudo bem? 🧁\n\n`;
+        texto += `Aqui está o resumo da sua encomenda na *La-Doces*:\n\n`;
+        
+        pedido.itens.forEach(item => {
+            texto += `▫️ ${item.qtd}x ${item.receita} - ${formatarMoeda(item.subtotalVenda)}\n`;
+        });
+
+        const metade = pedido.totalVenda / 2;
+        let dataFormatada = pedido.dataEntrega ? new Date(pedido.dataEntrega).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'A combinar';
+
+        texto += `\n📅 *Data de Entrega:* ${dataFormatada}\n`;
+        texto += `💰 *Valor Total:* ${formatarMoeda(pedido.totalVenda)}\n\n`;
+        texto += `⚠️ Para confirmar sua encomenda, pedimos um sinal de 50% do valor total:\n`;
+        texto += `*Sinal (50%):* ${formatarMoeda(metade)}\n\n`;
+        texto += `O restante (${formatarMoeda(metade)}) deverá ser pago no momento da entrega.\n\n`;
+        texto += `Agradecemos a preferência! 🥰`;
+
+        const textoCodificado = encodeURIComponent(texto);
+        window.open(`https://api.whatsapp.com/send?text=${textoCodificado}`, '_blank');
+    }
+
+    function alterarStatusPedido(id, novoStatus) {
+        const pedido = listaPedidos.find(p => p.id === id);
+        if (pedido) {
+            pedido.status = novoStatus;
+            localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
+            atualizarListaPedidos();
+            if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
+            showNotification(`Status alterado para ${novoStatus}`);
+        }
+    }
+
+    function excluirPedido(id, skipConfirm = false) {
+        if (skipConfirm) {
+            listaPedidos = listaPedidos.filter(p => p.id !== id);
+            localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
+            atualizarListaPedidos();
+            if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
+        } else {
+            showConfirm("Tem certeza que deseja excluir este pedido?", () => {
+                listaPedidos = listaPedidos.filter(p => p.id !== id);
+                localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
+                atualizarListaPedidos();
+                if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
+                showNotification("Pedido excluído.");
+            });
+        }
+    }
+
+    /* --- Sistema Financeiro (Dashboard e Gastos) --- */
+    function adicionarGastoExtra() {
+        const descricao = document.getElementById('gastoDescricao').value.trim();
+        const data = document.getElementById('gastoData').value;
+        const valor = parseFloat(document.getElementById('gastoValor').value);
+
+        if (!descricao || !data || isNaN(valor) || valor <= 0) {
+            showNotification("Preencha todos os campos do gasto corretamente.", "error");
+            return;
+        }
+
+        const novoGasto = {
+            id: Date.now(),
+            descricao: descricao,
+            data: data,
+            valor: valor
+        };
+
+        listaGastos.push(novoGasto);
+        localStorage.setItem('appTrufas_gastos', JSON.stringify(listaGastos));
+        
+        document.getElementById('gastoDescricao').value = '';
+        document.getElementById('gastoData').value = '';
+        document.getElementById('gastoValor').value = '';
+        
+        atualizarDashboardFinanceiro();
+        showNotification("Gasto extra registrado!");
+    }
+
+    function removerGastoExtra(id) {
+        listaGastos = listaGastos.filter(g => g.id !== id);
+        localStorage.setItem('appTrufas_gastos', JSON.stringify(listaGastos));
+        atualizarDashboardFinanceiro();
+    }
+
+    function atualizarDashboardFinanceiro() {
+        const inputMesAno = document.getElementById('filtroMesAno');
+        if (!inputMesAno || !inputMesAno.value) return;
+
+        const [anoFiltro, mesFiltro] = inputMesAno.value.split('-');
+
+        // Filtrar Pedidos "Pagos" do mês selecionado
+        const pedidosDoMes = listaPedidos.filter(pedido => {
+            if (pedido.status !== 'Pago' || !pedido.dataEntrega) return false;
+            const [ano, mes] = pedido.dataEntrega.split('-');
+            return ano === anoFiltro && mes === mesFiltro;
+        });
+
+        // Filtrar Gastos Extras do mês selecionado
+        const gastosDoMes = listaGastos.filter(gasto => {
+            if (!gasto.data) return false;
+            const [ano, mes] = gasto.data.split('-');
+            return ano === anoFiltro && mes === mesFiltro;
+        });
+
+        // Cálculos
+        const faturamento = pedidosDoMes.reduce((acc, p) => acc + p.totalVenda, 0);
+        const custoPedidos = pedidosDoMes.reduce((acc, p) => acc + p.totalCusto, 0);
+        const totalGastosExtras = gastosDoMes.reduce((acc, g) => acc + g.valor, 0);
+        
+        const custosTotais = custoPedidos + totalGastosExtras;
+        const lucroLiquido = faturamento - custosTotais;
+
+        // Atualizar Cards
+        document.getElementById('dashFaturamento').innerText = formatarMoeda(faturamento);
+        document.getElementById('dashCustos').innerText = formatarMoeda(custosTotais);
+        
+        const cardLucro = document.getElementById('dashLucro');
+        const caixaLucro = document.getElementById('caixaLucro');
+        const labelLucro = document.getElementById('labelLucro');
+        
+        cardLucro.innerText = formatarMoeda(lucroLiquido);
+        
+        if (lucroLiquido < 0) {
+            caixaLucro.style.backgroundColor = 'var(--cor-fundo-erro-light)';
+            caixaLucro.style.borderColor = 'var(--cor-borda-erro)';
+            cardLucro.style.color = 'var(--cor-texto-erro)';
+            labelLucro.style.color = 'var(--cor-texto-erro)';
+            labelLucro.innerText = 'Prejuízo';
+        } else {
+            caixaLucro.style.backgroundColor = 'var(--cor-fundo-info-light)';
+            caixaLucro.style.borderColor = 'var(--cor-borda-info)';
+            cardLucro.style.color = 'var(--cor-texto-info)';
+            labelLucro.style.color = 'var(--cor-texto-info)';
+            labelLucro.innerText = 'Lucro Líquido';
+        }
+
+        // Atualizar Tabela de Gastos Extras
+        const tbodyGastos = document.getElementById('listaGastosExtras');
+        tbodyGastos.innerHTML = '';
+        
+        const gastosOrdenados = [...gastosDoMes].sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        if (gastosOrdenados.length === 0) {
+            tbodyGastos.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhum gasto extra neste mês.</td></tr>';
+        } else {
+            gastosOrdenados.forEach(gasto => {
+                let dataFormatada = new Date(gasto.data).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+                tbodyGastos.innerHTML += `
+                    <tr>
+                        <td>${dataFormatada}</td>
+                        <td>${gasto.descricao}</td>
+                        <td><strong>${formatarMoeda(gasto.valor)}</strong></td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarGastoExtra(${gasto.id})">Editar</button>
+                                <button class="btn-remover" onclick="removerGastoExtra(${gasto.id})" style="padding: 5px 10px; width: auto;">Remover</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Atualizar Gráfico Financeiro
+        atualizarGraficoFinanceiro(faturamento, custoPedidos, totalGastosExtras);
+    }
+
+    function editarGastoExtra(id) {
+        const gasto = listaGastos.find(g => g.id === id);
+        if (gasto) {
+            document.getElementById('gastoDescricao').value = gasto.descricao;
+            document.getElementById('gastoData').value = gasto.data;
+            document.getElementById('gastoValor').value = gasto.valor;
+            
+            removerGastoExtra(id);
+            window.scrollTo({ top: document.querySelector('#aba-financeiro').offsetTop, behavior: 'smooth' });
+            showNotification("Gasto carregado para edição. Registre-o novamente quando terminar.", "success");
+        }
+    }
+
+    function atualizarGraficoFinanceiro(faturamento, custoPedidos, gastosExtras) {
+        const ctx = document.getElementById('graficoFinanceiro').getContext('2d');
+        
+        if (graficoFinanceiroObj) {
+            graficoFinanceiroObj.destroy();
+        }
+
+        if (faturamento === 0 && custoPedidos === 0 && gastosExtras === 0) {
+            return;
+        }
+
+        graficoFinanceiroObj = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Faturamento', 'Custo (Ingred/Mão de Obra)', 'Gastos Avulsos'],
+                datasets: [{
+                    label: 'Valores no Mês (R$)',
+                    data: [faturamento, custoPedidos, gastosExtras],
+                    backgroundColor: [
+                        '#2e7d32', // Verde
+                        '#ff9800', // Laranja
+                        '#c62828'  // Vermelho
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Entradas vs Saídas do Mês' }
+                }
+            }
+        });
+    }
+
+    /* --- Backup de Dados --- */
+    function exportarBackup() {
+        const dadosBackup = {
+            livroReceitas: JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {},
+            pedidos: JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [],
+            gastos: JSON.parse(localStorage.getItem('appTrufas_gastos')) || [],
+            configs: {
+                horas: localStorage.getItem('appTrufas_horas') || '',
+                valorHora: localStorage.getItem('appTrufas_valorHora') || '',
+                rendimento: localStorage.getItem('appTrufas_rendimento') || '',
+                margem: localStorage.getItem('appTrufas_margem') || ''
+            },
+            dataExportacao: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(dadosBackup, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const hoje = new Date();
+        const dataFormatada = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+        a.download = `la-doces-backup-${dataFormatada}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification("Backup exportado com sucesso!");
+    }
+
+    function importarBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+                
+                // Validação simples
+                if (dados.livroReceitas !== undefined && Array.isArray(dados.pedidos) && Array.isArray(dados.gastos)) {
+                    showConfirm("Isso irá substituir todos os dados atuais pelos do arquivo. Continuar?", () => {
+                        localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(dados.livroReceitas));
+                        localStorage.setItem('appTrufas_pedidos', JSON.stringify(dados.pedidos));
+                        localStorage.setItem('appTrufas_gastos', JSON.stringify(dados.gastos));
+                        
+                        if (dados.configs) {
+                            localStorage.setItem('appTrufas_horas', dados.configs.horas);
+                            localStorage.setItem('appTrufas_valorHora', dados.configs.valorHora);
+                            localStorage.setItem('appTrufas_rendimento', dados.configs.rendimento);
+                            localStorage.setItem('appTrufas_margem', dados.configs.margem);
+                        }
+
+                        showNotification("Backup restaurado com sucesso! A página será recarregada.");
+                        setTimeout(() => location.reload(), 1500);
+                    });
+                } else {
+                    showNotification("Arquivo de backup inválido ou corrompido.", "error");
+                }
+            } catch (error) {
+                showNotification("Erro ao ler o arquivo de backup.", "error");
+            }
+        };
+        reader.readAsText(file);
+        
+        // Reset input file
+        event.target.value = '';
+    }
+
+    /* --- Funções de Navegação (Tabs) --- */
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        
+        const clickedButton = Array.from(document.querySelectorAll('.tab-button')).find(btn => btn.getAttribute('onclick').includes(tabId));
+        if (clickedButton) clickedButton.classList.add('active');
+    }
+</script>
+
+<!-- OpenClaw Canvas Integration -->
+<div id="openclaw-status" style="position: fixed; bottom: 20px; right: 20px; padding: 8px 16px; border-radius: 9999px; background: #065f46; color: #34d399; font-size: 0.875rem; font-family: sans-serif; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: opacity 0.3s;" onclick="notifyAgent('status_click')">
+    ● OpenClaw Agent Connected
+</div>
+<script>
+    // OpenClaw Canvas Communication API
+    function notifyAgent(action, payload = {}) {
+        console.log("OpenClaw Canvas: Action triggered", action, payload);
+        // This function is intended to be intercepted by the OpenClaw Gateway
+        if (window.openclaw) {
+            window.openclaw.send(action, payload);
+        } else {
+            alert("Ação enviada para o agente OpenClaw: " + action);
+        }
+    }
+
+    // Exposed function for the OpenClaw Agent to update the Canvas UI
+    window.updateData = (data) => {
+        console.log("OpenClaw Canvas: Data received from Agent", data);
+        // Implement logic to update UI based on agent commands
+        if (data && data.status) {
+            const statusEl = document.getElementById('openclaw-status');
+            if (statusEl) statusEl.innerText = `● ${data.status}`;
+        }
+    };
+</script>
+
+</body>
+</html>

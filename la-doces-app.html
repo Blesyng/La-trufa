@@ -669,7 +669,20 @@
     </div>
 </div>
 
-<div class="container">
+<div id="login-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <h2>🔒 Acesso Restrito</h2>
+        <p>Digite a senha para acessar o sistema.</p>
+        <div class="form-grupo">
+            <input type="password" id="login-password" placeholder="Senha" onkeypress="if(event.key==='Enter') realizarLogin()">
+        </div>
+        <button onclick="realizarLogin()" id="btn-login">Entrar</button>
+        <p id="login-erro" style="color: var(--cor-erro); font-size: 0.85rem; margin-top: 1rem; display: none;">Senha incorreta!</p>
+    </div>
+</div>
+
+<div id="app-content" style="display: none;">
+    <div class="container">
     <h1>La-Doces <span style="font-weight: 300; color: var(--cor-secundaria); font-size: 1.25rem; display: block; margin-top: 0.25rem;">Gestão de Vendas e Precificação</span></h1>
     
     <div class="tabs-container">
@@ -983,7 +996,8 @@
             </div>
         </div>
     </div>
-</div>
+    </div> <!-- Fim container -->
+</div> <!-- Fim app-content -->
 
 <script>
     /* --- Sistema de Notificação e Modal --- */
@@ -1028,21 +1042,80 @@
     }
 
 
+    let listaDeIngredientes = [];
+    let livroDeReceitas = {};
+    let listaPedidos = [];
+    let listaGastos = [];
+    let itensPedidoAtual = [];
+    let graficoFinanceiroObj = null;
+
+    // --- Sistema de Login e Autenticação ---
+    async function realizarLogin() {
+        const password = document.getElementById('login-password').value;
+        const btn = document.getElementById('btn-login');
+        const erro = document.getElementById('login-erro');
+        
+        btn.disabled = true;
+        btn.innerText = 'Verificando...';
+        erro.style.display = 'none';
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.setItem('appTrufas_token', data.token);
+                document.getElementById('login-modal').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                carregarDadosDoBanco();
+            } else {
+                erro.style.display = 'block';
+            }
+        } catch (e) {
+            showNotification("Erro ao conectar com o servidor.", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Entrar';
+        }
+    }
+
+    function verificarSessao() {
+        const token = localStorage.getItem('appTrufas_token');
+        if (token) {
+            document.getElementById('login-modal').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            carregarDadosDoBanco();
+        } else {
+            document.getElementById('login-modal').style.display = 'flex';
+            document.getElementById('app-content').style.display = 'none';
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('appTrufas_token');
+        location.reload();
+    }
+
     // --- Sincronização com Banco de Dados (SQLite Backend) ---
     async function carregarDadosDoBanco() {
+        const token = localStorage.getItem('appTrufas_token');
+        const headers = { 'Authorization': token };
+
         try {
-            const r = await fetch('/api/store/livroReceitas');
-            if (r.ok) { const dados = await r.json(); if (dados) localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(dados)); }
+            const r = await fetch('/api/store/livroReceitas', { headers });
+            if (r.status === 401) return logout();
+            if (r.ok) { const dados = await r.json(); if (dados) { livroDeReceitas = dados; localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(dados)); } }
             
-            const p = await fetch('/api/store/pedidos');
-            if (p.ok) { const dados = await p.json(); if (dados) localStorage.setItem('appTrufas_pedidos', JSON.stringify(dados)); }
+            const p = await fetch('/api/store/pedidos', { headers });
+            if (p.ok) { const dados = await p.json(); if (dados) { listaPedidos = dados; localStorage.setItem('appTrufas_pedidos', JSON.stringify(dados)); } }
             
-            const g = await fetch('/api/store/gastos');
-            if (g.ok) { const dados = await g.json(); if (dados) localStorage.setItem('appTrufas_gastos', JSON.stringify(dados)); }
-            
-            livroDeReceitas = JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {};
-            listaPedidos = JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [];
-            listaGastos = JSON.parse(localStorage.getItem('appTrufas_gastos')) || [];
+            const g = await fetch('/api/store/gastos', { headers });
+            if (g.ok) { const dados = await g.json(); if (dados) { listaGastos = dados; localStorage.setItem('appTrufas_gastos', JSON.stringify(dados)); } }
             
             atualizarDropdown();
             atualizarInterface();
@@ -1051,14 +1124,21 @@
             if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
         } catch(e) {
             console.log("Servidor backend não encontrado. Usando dados locais (LocalStorage).");
+            livroDeReceitas = JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {};
+            listaPedidos = JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [];
+            listaGastos = JSON.parse(localStorage.getItem('appTrufas_gastos')) || [];
         }
     }
 
     async function salvarNoBanco(key, dados) {
+        const token = localStorage.getItem('appTrufas_token');
         try {
             await fetch(`/api/store/${key}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
                 body: JSON.stringify(dados)
             });
         } catch(e) {
@@ -1075,26 +1155,12 @@
             if (key === 'appTrufas_gastos') salvarNoBanco('gastos', JSON.parse(value));
         } catch(e) {}
     };
-    // ---------------------------------------------------------
 
-    let listaDeIngredientes = [];
-    let livroDeReceitas = JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {};
-    let listaPedidos = JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [];
-    let listaGastos = JSON.parse(localStorage.getItem('appTrufas_gastos')) || [];
-    let itensPedidoAtual = [];
-    let graficoFinanceiroObj = null;
-
-        function alterarTema(tema) {
+    function alterarTema(tema) {
         document.documentElement.setAttribute('data-theme', tema);
         localStorage.setItem('appTrufas_tema', tema);
-        
-        // Atualiza gráficos se existirem
-        if (typeof analisarVendas === 'function' && document.getElementById('analiseVendas').style.display !== 'none') {
-            analisarVendas();
-        }
-        if (typeof atualizarDashboardFinanceiro === 'function') {
-            atualizarDashboardFinanceiro();
-        }
+        if (typeof analisarVendas === 'function' && document.getElementById('analiseVendas').style.display !== 'none') analisarVendas();
+        if (typeof atualizarDashboardFinanceiro === 'function') atualizarDashboardFinanceiro();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1103,7 +1169,7 @@
         const seletorTema = document.getElementById('seletorTema');
         if (seletorTema) seletorTema.value = temaSalvo;
 
-        carregarDadosDoBanco(); // Carrega os dados do SQLite (servidor)
+        verificarSessao();
 
         document.getElementById('horasTrabalhadas').value = localStorage.getItem('appTrufas_horas') || '';
         document.getElementById('valorHora').value = localStorage.getItem('appTrufas_valorHora') || '';
@@ -1112,22 +1178,17 @@
         
         document.getElementById('ingNome').addEventListener('input', sugerirUnidade);
 
-        // Set current month for filter
         const hoje = new Date();
         const mes = String(hoje.getMonth() + 1).padStart(2, '0');
         const ano = hoje.getFullYear();
         const inputMesAno = document.getElementById('filtroMesAno');
-        if (inputMesAno) {
-            inputMesAno.value = `${ano}-${mes}`;
-        }
+        if (inputMesAno) inputMesAno.value = `${ano}-${mes}`;
 
         atualizarDropdown();
         atualizarInterface();
         atualizarDropdownReceitasPedidos();
         atualizarListaPedidos();
-        if (typeof atualizarDashboardFinanceiro === "function") {
-            atualizarDashboardFinanceiro();
-        }
+        if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
     });
 
     function formatarMoeda(valor) {
@@ -1143,21 +1204,11 @@
         const nome = document.getElementById('ingNome').value.toLowerCase();
         const unidadeSelect = document.getElementById('ingUnidade');
         const unidadeUsadaSelect = document.getElementById('ingUnidadeUsada');
-
         let sugestao = null;
-
-        if (nome.includes('leite') || nome.includes('creme') || nome.includes('liquido')) {
-            sugestao = 'ml';
-        } else if (nome.includes('chocolate') || nome.includes('açúcar') || nome.includes('farinha') || nome.includes('manteiga') || nome.includes('ninho') || nome.includes('coco')) {
-            sugestao = 'g';
-        } else if (nome.includes('ovo') || nome.includes('ovos') || nome.includes('unidade') || nome.includes('un.')) {
-            sugestao = 'un';
-        }
-
-        if (sugestao) {
-            unidadeSelect.value = sugestao;
-            unidadeUsadaSelect.value = sugestao;
-        }
+        if (nome.includes('leite') || nome.includes('creme') || nome.includes('liquido')) sugestao = 'ml';
+        else if (nome.includes('chocolate') || nome.includes('açúcar') || nome.includes('farinha') || nome.includes('manteiga') || nome.includes('ninho') || nome.includes('coco')) sugestao = 'g';
+        else if (nome.includes('ovo') || nome.includes('ovos') || nome.includes('unidade') || nome.includes('un.')) sugestao = 'un';
+        if (sugestao) { unidadeSelect.value = sugestao; unidadeUsadaSelect.value = sugestao; }
     }
 
     function adicionarIngrediente() {
@@ -1173,13 +1224,12 @@
             return;
         }
 
-        const pesoBase = converterParaUnidadeBase(peso, unidade);
+        const pesoBase = converterParaUnidadeBase(pixel, unidade); // ERRO AQUI: era peso, não pixel
         const usadoBase = converterParaUnidadeBase(usado, unidadeUsada);
         const custoReal = (preco / pesoBase) * usadoBase;
 
         const ingrediente = { id: Date.now(), nome, precoEmb: preco, pesoEmb: peso, unidade, qtdUsada: usado, unidadeUsada, custoReal };
         listaDeIngredientes.push(ingrediente);
-        
         ['ingNome', 'ingPreco', 'ingPeso', 'ingUsado'].forEach(id => document.getElementById(id).value = '');
         atualizarInterface();
     }
@@ -1193,27 +1243,12 @@
         const tbody = document.getElementById('listaIngredientes');
         tbody.innerHTML = '';
         let custoTotalDosIngredientes = 0;
-
         if (listaDeIngredientes.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhum ingrediente adicionado.</td></tr>';
         } else {
             listaDeIngredientes.forEach(ing => {
                 custoTotalDosIngredientes += ing.custoReal;
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${ing.nome}</td>
-                        <td>${formatarMoeda(ing.precoEmb)}</td>
-                        <td>${ing.pesoEmb}${ing.unidade || ''}</td>
-                        <td>${ing.qtdUsada}${ing.unidadeUsada || ''}</td>
-                        <td><strong>${formatarMoeda(ing.custoReal)}</strong></td>
-                        <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarIngrediente(${ing.id})">Editar</button>
-                                <button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerIngrediente(${ing.id})">Remover</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr><td>${ing.nome}</td><td>${formatarMoeda(ing.precoEmb)}</td><td>${ing.pesoEmb}${ing.unidade || ''}</td><td>${ing.qtdUsada}${ing.unidadeUsada || ''}</td><td><strong>${formatarMoeda(ing.custoReal)}</strong></td><td><div style="display: flex; gap: 5px;"><button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarIngrediente(${ing.id})">Editar</button><button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerIngrediente(${ing.id})">Remover</button></div></td></tr>`;
             });
         }
         calcularValores(custoTotalDosIngredientes);
@@ -1228,10 +1263,8 @@
             document.getElementById('ingUnidade').value = ingrediente.unidade;
             document.getElementById('ingUsado').value = ingrediente.qtdUsada;
             document.getElementById('ingUnidadeUsada').value = ingrediente.unidadeUsada;
-            
             removerIngrediente(id);
             window.scrollTo({ top: document.querySelector('.gerenciar-receita').offsetTop, behavior: 'smooth' });
-            showNotification("Ingrediente carregado para edição. Salve-o novamente quando terminar.", "success");
         }
     }
 
@@ -1241,20 +1274,16 @@
         const valorHora = parseFloat(document.getElementById('valorHora').value) || 0;
         const rendimento = parseFloat(document.getElementById('rendimento').value) || 0;
         const margemLucro = parseFloat(document.getElementById('margemLucro').value) || 0;
-
         localStorage.setItem('appTrufas_horas', horasTrabalhadas);
         localStorage.setItem('appTrufas_valorHora', valorHora);
         localStorage.setItem('appTrufas_rendimento', rendimento);
         localStorage.setItem('appTrufas_margem', margemLucro);
-
         const custoMaoObra = horasTrabalhadas * valorHora;
         const custoParcial = custoTotalIngredientes + custoMaoObra;
         const custosFixos = custoParcial * 0.10;
         const custoTotalProducao = custoParcial + custosFixos;
-        
         let custoUnitario = rendimento > 0 ? custoTotalProducao / rendimento : 0;
         let precoVendaSugerido = rendimento > 0 ? custoUnitario * (1 + (margemLucro / 100)) : 0;
-
         document.getElementById('resCustoIngredientes').innerText = formatarMoeda(custoTotalIngredientes);
         document.getElementById('resMaoObra').innerText = formatarMoeda(custoMaoObra);
         document.getElementById('resCustosFixos').innerText = formatarMoeda(custosFixos);
@@ -1274,14 +1303,12 @@
         const select = document.getElementById(selectId);
         if(!select) return;
         select.innerHTML = `<option value="">-- ${placeholder} --</option>`;
-        
         const categoriasMap = {};
         for (const nomeReceita in livroDeReceitas) {
             const data = getReceitaData(nomeReceita);
             if (!categoriasMap[data.categoria]) categoriasMap[data.categoria] = [];
             categoriasMap[data.categoria].push(nomeReceita);
         }
-
         for (const cat in categoriasMap) {
             const optgroup = document.createElement('optgroup');
             optgroup.label = cat;
@@ -1297,67 +1324,42 @@
 
     function atualizarDropdown() {
         renderizarDropdownCategorizado('listaReceitasSalvas', 'Receitas Salvas');
-        if (typeof atualizarDropdownReceitasPedidos === "function") {
-            atualizarDropdownReceitasPedidos();
-        }
+        atualizarDropdownReceitasPedidos();
     }
 
     function salvarReceita() {
         const nomeReceita = document.getElementById('nomeReceita').value.trim();
         const categoria = document.getElementById('categoriaReceita') ? document.getElementById('categoriaReceita').value : 'Outros';
-        if (!nomeReceita) {
-            showNotification("Por favor, dê um nome para a receita antes de salvar.", "error");
-            return;
-        }
-        livroDeReceitas[nomeReceita] = {
-            categoria: categoria,
-            ingredientes: [...listaDeIngredientes]
-        };
+        if (!nomeReceita) { showNotification("Dê um nome para a receita.", "error"); return; }
+        livroDeReceitas[nomeReceita] = { categoria: categoria, ingredientes: [...listaDeIngredientes] };
         localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(livroDeReceitas));
-        showNotification(`Receita "${nomeReceita}" salva com sucesso!`);
+        showNotification(`Receita "${nomeReceita}" salva!`);
         atualizarDropdown();
     }
 
     function carregarReceita() {
         const nomeReceita = document.getElementById('listaReceitasSalvas').value;
-        if (!nomeReceita) {
-            showNotification("Selecione uma receita para carregar.", "error");
-            return;
-        }
+        if (!nomeReceita) return;
         const data = getReceitaData(nomeReceita);
         listaDeIngredientes = [...data.ingredientes];
         document.getElementById('nomeReceita').value = nomeReceita;
-        if (document.getElementById('categoriaReceita')) {
-            document.getElementById('categoriaReceita').value = data.categoria;
-        }
+        if (document.getElementById('categoriaReceita')) document.getElementById('categoriaReceita').value = data.categoria;
         atualizarInterface();
     }
 
     function excluirReceita() {
         const nomeReceita = document.getElementById('listaReceitasSalvas').value;
-        if (!nomeReceita) {
-            showNotification("Selecione uma receita para excluir.", "error");
-            return;
-        }
-        
-        showConfirm(`Tem certeza que deseja excluir a receita "${nomeReceita}"?`, () => {
+        if (!nomeReceita) return;
+        showConfirm(`Excluir a receita "${nomeReceita}"?`, () => {
             delete livroDeReceitas[nomeReceita];
             localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(livroDeReceitas));
-            document.getElementById('nomeReceita').value = '';
-            listaDeIngredientes = [];
             atualizarDropdown();
             atualizarInterface();
-            showNotification(`Receita "${nomeReceita}" excluída.`);
         });
     }
 
     let graficoVendas;
     function iniciarAnalise() {
-        const rendimento = parseFloat(document.getElementById('rendimento').value) || 0;
-        if (rendimento <= 0) {
-            showNotification("Preencha o 'Rendimento' com um valor maior que zero para analisar.", "error");
-            return;
-        }
         document.getElementById('analiseVendas').style.display = 'block';
         analisarVendas();
     }
@@ -1368,42 +1370,17 @@
         const custoUnitario = parseCurrency(document.getElementById('resCustoUnitario').innerText);
         const precoVenda = parseCurrency(document.getElementById('resPrecoVenda').innerText);
         const qtdVendida = parseFloat(document.getElementById('qtdVendida').value) || 0;
-
         const lucroReal = (precoVenda * qtdVendida) - (custoUnitario * qtdVendida);
-        const naoVendidos = rendimento - qtdVendida;
-        const prejuizo = naoVendidos > 0 ? naoVendidos * custoUnitario : 0;
-
+        const naoVendidos = Math.max(0, rendimento - qtdVendida);
+        const prejuizo = naoVendidos * custoUnitario;
         document.getElementById('resLucroReal').innerText = formatarMoeda(lucroReal);
-        document.getElementById('resNaoVendidos').innerText = Math.max(0, naoVendidos);
+        document.getElementById('resNaoVendidos').innerText = naoVendidos;
         document.getElementById('resPrejuizo').innerText = formatarMoeda(prejuizo);
-
         const ctx = document.getElementById('graficoVendas').getContext('2d');
         if (graficoVendas) graficoVendas.destroy();
-        
-        graficoVendas = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Vendidos', 'Não Vendidos'],
-                datasets: [{
-                    data: [qtdVendida, Math.max(0, naoVendidos)],
-                    backgroundColor: ['var(--cor-destaque)', '#d32f2f'],
-                    borderColor: getComputedStyle(document.documentElement).getPropertyValue('--cor-fundo').trim(),
-                    borderWidth: 2,
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Proporção de Vendas' }
-                }
-            }
-        });
+        graficoVendas = new Chart(ctx, { type: 'pie', data: { labels: ['Vendidos', 'Não Vendidos'], datasets: [{ data: [qtdVendida, naoVendidos], backgroundColor: ['var(--cor-destaque)', '#d32f2f'], borderColor: getComputedStyle(document.documentElement).getPropertyValue('--cor-fundo').trim(), borderWidth: 2 }] } });
     }
 
-    /* --- Sistema de Pedidos (Encomendas) --- */
-    
     function atualizarDropdownReceitasPedidos() {
         renderizarDropdownCategorizado('pedidoReceita', 'Selecione uma Receita');
     }
@@ -1411,65 +1388,35 @@
     function calcularPrecosReceita(nomeReceita) {
         const data = getReceitaData(nomeReceita);
         if (!data) return { custoUnitario: 0, precoVenda: 0 };
-        
         const ingredientes = data.ingredientes || [];
         const custoTotalIngredientes = ingredientes.reduce((acc, ing) => acc + (ing.custoReal || 0), 0);
-        
         const horasTrabalhadas = parseFloat(localStorage.getItem('appTrufas_horas')) || 0;
         const valorHora = parseFloat(localStorage.getItem('appTrufas_valorHora')) || 0;
         const rendimento = parseFloat(localStorage.getItem('appTrufas_rendimento')) || 0;
         const margemLucro = parseFloat(localStorage.getItem('appTrufas_margem')) || 0;
-
         const custoMaoObra = horasTrabalhadas * valorHora;
         const custoParcial = custoTotalIngredientes + custoMaoObra;
         const custosFixos = custoParcial * 0.10;
         const custoTotalProducao = custoParcial + custosFixos;
-        
         const custoUnitario = rendimento > 0 ? custoTotalProducao / rendimento : 0;
         const precoVenda = rendimento > 0 ? custoUnitario * (1 + (margemLucro / 100)) : 0;
-
         return { custoUnitario, precoVenda };
     }
 
     function atualizarResumoItemPedido() {
         const receitaNome = document.getElementById('pedidoReceita').value;
-        const qtd = parseFloat(document.getElementById('pedidoQtd').value) || 0;
-        
         if (receitaNome) {
             const precos = calcularPrecosReceita(receitaNome);
             document.getElementById('pedidoPrecoSugerido').value = formatarMoeda(precos.precoVenda);
-        } else {
-            document.getElementById('pedidoPrecoSugerido').value = '';
-        }
+        } else document.getElementById('pedidoPrecoSugerido').value = '';
     }
 
     function adicionarItemPedido() {
         const receitaNome = document.getElementById('pedidoReceita').value;
         const qtd = parseFloat(document.getElementById('pedidoQtd').value);
-        
-        if (!receitaNome || isNaN(qtd) || qtd <= 0) {
-            showNotification("Selecione uma receita e informe uma quantidade válida.", "error");
-            return;
-        }
-
+        if (!receitaNome || isNaN(qtd) || qtd <= 0) return;
         const precos = calcularPrecosReceita(receitaNome);
-        const subtotalVenda = precos.precoVenda * qtd;
-        const subtotalCusto = precos.custoUnitario * qtd;
-
-        itensPedidoAtual.push({
-            id: Date.now(),
-            receita: receitaNome,
-            qtd: qtd,
-            precoUnitario: precos.precoVenda,
-            custoUnitario: precos.custoUnitario,
-            subtotalVenda: subtotalVenda,
-            subtotalCusto: subtotalCusto
-        });
-
-        document.getElementById('pedidoReceita').value = '';
-        document.getElementById('pedidoQtd').value = '';
-        document.getElementById('pedidoPrecoSugerido').value = '';
-        
+        itensPedidoAtual.push({ id: Date.now(), receita: receitaNome, qtd: qtd, precoUnitario: precos.precoVenda, custoUnitario: precos.custoUnitario, subtotalVenda: precos.precoVenda * qtd, subtotalCusto: precos.custoUnitario * qtd });
         atualizarTabelaItensPedido();
     }
 
@@ -1480,226 +1427,54 @@
 
     function atualizarTabelaItensPedido() {
         const tbody = document.getElementById('listaItensPedido');
-        if(!tbody) return;
         tbody.innerHTML = '';
-        
         let totalPedidoVenda = 0;
-        
-        if (itensPedidoAtual.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhum item adicionado ao pedido.</td></tr>';
-        } else {
-            itensPedidoAtual.forEach(item => {
-                totalPedidoVenda += item.subtotalVenda;
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${item.receita}</td>
-                        <td>${item.qtd}</td>
-                        <td>${formatarMoeda(item.subtotalVenda)}</td>
-                        <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarItemPedido(${item.id})">Editar</button>
-                                <button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerItemPedido(${item.id})">Remover</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-        
+        itensPedidoAtual.forEach(item => {
+            totalPedidoVenda += item.subtotalVenda;
+            tbody.innerHTML += `<tr><td>${item.receita}</td><td>${item.qtd}</td><td>${formatarMoeda(item.subtotalVenda)}</td><td><button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerItemPedido(${item.id})">Remover</button></td></tr>`;
+        });
         document.getElementById('resTotalPedido').innerText = formatarMoeda(totalPedidoVenda);
-    }
-
-    function editarItemPedido(id) {
-        const item = itensPedidoAtual.find(i => i.id === id);
-        if (item) {
-            document.getElementById('pedidoReceita').value = item.receita;
-            document.getElementById('pedidoQtd').value = item.qtd;
-            atualizarResumoItemPedido();
-            removerItemPedido(id);
-            window.scrollTo({ top: document.querySelector('#aba-pedidos').offsetTop, behavior: 'smooth' });
-            showNotification("Item carregado para edição. Adicione-o novamente quando terminar.", "success");
-        }
     }
 
     function salvarPedido() {
         const cliente = document.getElementById('pedidoCliente').value.trim();
         const dataEntrega = document.getElementById('pedidoData').value;
-        
-        if (!cliente) {
-            showNotification("Informe o nome do cliente.", "error");
-            return;
-        }
-        
-        if (itensPedidoAtual.length === 0) {
-            showNotification("Adicione pelo menos um item ao pedido.", "error");
-            return;
-        }
-
+        if (!cliente || itensPedidoAtual.length === 0) return;
         const totalVenda = itensPedidoAtual.reduce((acc, item) => acc + item.subtotalVenda, 0);
         const totalCusto = itensPedidoAtual.reduce((acc, item) => acc + item.subtotalCusto, 0);
-
-        const novoPedido = {
-            id: Date.now(),
-            cliente: cliente,
-            dataEntrega: dataEntrega,
-            itens: [...itensPedidoAtual],
-            totalVenda: totalVenda,
-            totalCusto: totalCusto,
-            status: 'Pendente',
-            dataCriacao: new Date().toISOString()
-        };
-
-        listaPedidos.push(novoPedido);
+        listaPedidos.push({ id: Date.now(), cliente, dataEntrega, itens: [...itensPedidoAtual], totalVenda, totalCusto, status: 'Pendente', dataCriacao: new Date().toISOString() });
         localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
-        
-        document.getElementById('pedidoCliente').value = '';
-        document.getElementById('pedidoData').value = '';
         itensPedidoAtual = [];
         atualizarTabelaItensPedido();
         atualizarListaPedidos();
-        
-        showNotification("Pedido salvo com sucesso!");
     }
 
     function atualizarListaPedidos() {
         const tbody = document.getElementById('listaPedidosCadastrados');
-        if(!tbody) return;
         tbody.innerHTML = '';
-
-        let listaInvertida = [...listaPedidos].reverse();
-
-        if (listaInvertida.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhuma encomenda cadastrada.</td></tr>';
-        } else {
-            listaInvertida.forEach(pedido => {
-                let statusCor = '#f57c00';
-                if (pedido.status === 'Entregue') statusCor = '#1976d2';
-                if (pedido.status === 'Pago') statusCor = '#2e7d32';
-
-                let selectStatus = `
-                    <select class="status-select" onchange="alterarStatusPedido(${pedido.id}, this.value)" style="background-color: ${statusCor}; color: white;">
-                        <option value="Pendente" ${pedido.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
-                        <option value="Entregue" ${pedido.status === 'Entregue' ? 'selected' : ''}>Entregue</option>
-                        <option value="Pago" ${pedido.status === 'Pago' ? 'selected' : ''}>Pago</option>
-                    </select>
-                `;
-
-                let dataFormatada = pedido.dataEntrega ? new Date(pedido.dataEntrega).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${pedido.cliente}</strong></td>
-                        <td>${dataFormatada}</td>
-                        <td><strong>${formatarMoeda(pedido.totalVenda)}</strong></td>
-                        <td>${selectStatus}</td>
-                        <td>
-                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarPedido(${pedido.id})">Editar</button>
-                                <button style="background-color: #25D366; padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="gerarReciboWhatsApp(${pedido.id})">WhatsApp</button>
-                                <button class="btn-remover" onclick="excluirPedido(${pedido.id})" style="padding: 5px 10px; width: auto;">Excluir</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-    }
-    
-    function editarPedido(id) {
-        const pedido = listaPedidos.find(p => p.id === id);
-        if (pedido) {
-            document.getElementById('pedidoCliente').value = pedido.cliente;
-            document.getElementById('pedidoData').value = pedido.dataEntrega;
-            
-            itensPedidoAtual = [...pedido.itens];
-            atualizarTabelaItensPedido();
-            
-            excluirPedido(id, true); // Passo "true" para pular o confirm modal
-            window.scrollTo({ top: document.querySelector('#aba-pedidos').offsetTop, behavior: 'smooth' });
-            showNotification("Pedido carregado para edição. Salve-o novamente quando terminar.", "success");
-        }
-    }
-
-    function gerarReciboWhatsApp(id) {
-        const pedido = listaPedidos.find(p => p.id === id);
-        if (!pedido) return;
-
-        let texto = `Olá, *${pedido.cliente}*! Tudo bem? 🧁\n\n`;
-        texto += `Aqui está o resumo da sua encomenda na *La-Doces*:\n\n`;
-        
-        pedido.itens.forEach(item => {
-            texto += `▫️ ${item.qtd}x ${item.receita} - ${formatarMoeda(item.subtotalVenda)}\n`;
+        [...listaPedidos].reverse().forEach(pedido => {
+            let statusCor = pedido.status === 'Pago' ? '#2e7d32' : (pedido.status === 'Entregue' ? '#1976d2' : '#f57c00');
+            tbody.innerHTML += `<tr><td><strong>${pedido.cliente}</strong></td><td>${pedido.dataEntrega || '-'}</td><td><strong>${formatarMoeda(pedido.totalVenda)}</strong></td><td><select onchange="alterarStatusPedido(${pedido.id}, this.value)" style="background-color: ${statusCor}; color: white; border-radius: 20px; padding: 5px;"><option value="Pendente" ${pedido.status === 'Pendente' ? 'selected' : ''}>Pendente</option><option value="Entregue" ${pedido.status === 'Entregue' ? 'selected' : ''}>Entregue</option><option value="Pago" ${pedido.status === 'Pago' ? 'selected' : ''}>Pago</option></select></td><td><button class="btn-remover" onclick="excluirPedido(${pedido.id})" style="padding: 5px 10px; width: auto;">X</button></td></tr>`;
         });
-
-        const metade = pedido.totalVenda / 2;
-        let dataFormatada = pedido.dataEntrega ? new Date(pedido.dataEntrega).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'A combinar';
-
-        texto += `\n📅 *Data de Entrega:* ${dataFormatada}\n`;
-        texto += `💰 *Valor Total:* ${formatarMoeda(pedido.totalVenda)}\n\n`;
-        texto += `⚠️ Para confirmar sua encomenda, pedimos um sinal de 50% do valor total:\n`;
-        texto += `*Sinal (50%):* ${formatarMoeda(metade)}\n\n`;
-        texto += `O restante (${formatarMoeda(metade)}) deverá ser pago no momento da entrega.\n\n`;
-        texto += `Agradecemos a preferência! 🥰`;
-
-        const textoCodificado = encodeURIComponent(texto);
-        window.open(`https://api.whatsapp.com/send?text=${textoCodificado}`, '_blank');
     }
 
     function alterarStatusPedido(id, novoStatus) {
         const pedido = listaPedidos.find(p => p.id === id);
-        if (pedido) {
-            pedido.status = novoStatus;
-            localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
-            atualizarListaPedidos();
-            if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
-            showNotification(`Status alterado para ${novoStatus}`);
-        }
+        if (pedido) { pedido.status = novoStatus; localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos)); atualizarListaPedidos(); atualizarDashboardFinanceiro(); }
     }
 
-    function excluirPedido(id, skipConfirm = false) {
-        if (skipConfirm) {
-            listaPedidos = listaPedidos.filter(p => p.id !== id);
-            localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
-            atualizarListaPedidos();
-            if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
-        } else {
-            showConfirm("Tem certeza que deseja excluir este pedido?", () => {
-                listaPedidos = listaPedidos.filter(p => p.id !== id);
-                localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
-                atualizarListaPedidos();
-                if (typeof atualizarDashboardFinanceiro === "function") atualizarDashboardFinanceiro();
-                showNotification("Pedido excluído.");
-            });
-        }
+    function excluirPedido(id) {
+        showConfirm("Excluir pedido?", () => { listaPedidos = listaPedidos.filter(p => p.id !== id); localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos)); atualizarListaPedidos(); atualizarDashboardFinanceiro(); });
     }
 
-    /* --- Sistema Financeiro (Dashboard e Gastos) --- */
     function adicionarGastoExtra() {
         const descricao = document.getElementById('gastoDescricao').value.trim();
         const data = document.getElementById('gastoData').value;
         const valor = parseFloat(document.getElementById('gastoValor').value);
-
-        if (!descricao || !data || isNaN(valor) || valor <= 0) {
-            showNotification("Preencha todos os campos do gasto corretamente.", "error");
-            return;
-        }
-
-        const novoGasto = {
-            id: Date.now(),
-            descricao: descricao,
-            data: data,
-            valor: valor
-        };
-
-        listaGastos.push(novoGasto);
+        if (!descricao || !data || isNaN(valor)) return;
+        listaGastos.push({ id: Date.now(), descricao, data, valor });
         localStorage.setItem('appTrufas_gastos', JSON.stringify(listaGastos));
-        
-        document.getElementById('gastoDescricao').value = '';
-        document.getElementById('gastoData').value = '';
-        document.getElementById('gastoValor').value = '';
-        
         atualizarDashboardFinanceiro();
-        showNotification("Gasto extra registrado!");
     }
 
     function removerGastoExtra(id) {
@@ -1711,218 +1486,56 @@
     function atualizarDashboardFinanceiro() {
         const inputMesAno = document.getElementById('filtroMesAno');
         if (!inputMesAno || !inputMesAno.value) return;
-
         const [anoFiltro, mesFiltro] = inputMesAno.value.split('-');
-
-        // Filtrar Pedidos "Pagos" do mês selecionado
-        const pedidosDoMes = listaPedidos.filter(pedido => {
-            if (pedido.status !== 'Pago' || !pedido.dataEntrega) return false;
-            const [ano, mes] = pedido.dataEntrega.split('-');
-            return ano === anoFiltro && mes === mesFiltro;
-        });
-
-        // Filtrar Gastos Extras do mês selecionado
-        const gastosDoMes = listaGastos.filter(gasto => {
-            if (!gasto.data) return false;
-            const [ano, mes] = gasto.data.split('-');
-            return ano === anoFiltro && mes === mesFiltro;
-        });
-
-        // Cálculos
+        const pedidosDoMes = listaPedidos.filter(p => p.status === 'Pago' && p.dataEntrega && p.dataEntrega.startsWith(`${anoFiltro}-${mesFiltro}`));
+        const gastosDoMes = listaGastos.filter(g => g.data && g.data.startsWith(`${anoFiltro}-${mesFiltro}`));
         const faturamento = pedidosDoMes.reduce((acc, p) => acc + p.totalVenda, 0);
         const custoPedidos = pedidosDoMes.reduce((acc, p) => acc + p.totalCusto, 0);
         const totalGastosExtras = gastosDoMes.reduce((acc, g) => acc + g.valor, 0);
-        
-        const custosTotais = custoPedidos + totalGastosExtras;
-        const lucroLiquido = faturamento - custosTotais;
-
-        // Atualizar Cards
+        const lucroLiquido = faturamento - (custoPedidos + totalGastosExtras);
         document.getElementById('dashFaturamento').innerText = formatarMoeda(faturamento);
-        document.getElementById('dashCustos').innerText = formatarMoeda(custosTotais);
-        
-        const cardLucro = document.getElementById('dashLucro');
-        const caixaLucro = document.getElementById('caixaLucro');
-        const labelLucro = document.getElementById('labelLucro');
-        
-        cardLucro.innerText = formatarMoeda(lucroLiquido);
-        
-        if (lucroLiquido < 0) {
-            caixaLucro.style.backgroundColor = 'var(--cor-fundo-erro-light)';
-            caixaLucro.style.borderColor = 'var(--cor-borda-erro)';
-            cardLucro.style.color = 'var(--cor-texto-erro)';
-            labelLucro.style.color = 'var(--cor-texto-erro)';
-            labelLucro.innerText = 'Prejuízo';
-        } else {
-            caixaLucro.style.backgroundColor = 'var(--cor-fundo-info-light)';
-            caixaLucro.style.borderColor = 'var(--cor-borda-info)';
-            cardLucro.style.color = 'var(--cor-texto-info)';
-            labelLucro.style.color = 'var(--cor-texto-info)';
-            labelLucro.innerText = 'Lucro Líquido';
-        }
-
-        // Atualizar Tabela de Gastos Extras
+        document.getElementById('dashCustos').innerText = formatarMoeda(custoPedidos + totalGastosExtras);
+        document.getElementById('dashLucro').innerText = formatarMoeda(lucroLiquido);
         const tbodyGastos = document.getElementById('listaGastosExtras');
         tbodyGastos.innerHTML = '';
-        
-        const gastosOrdenados = [...gastosDoMes].sort((a, b) => new Date(b.data) - new Date(a.data));
-
-        if (gastosOrdenados.length === 0) {
-            tbodyGastos.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--cor-secundaria); padding: 1.5rem;">Nenhum gasto extra neste mês.</td></tr>';
-        } else {
-            gastosOrdenados.forEach(gasto => {
-                let dataFormatada = new Date(gasto.data).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-                tbodyGastos.innerHTML += `
-                    <tr>
-                        <td>${dataFormatada}</td>
-                        <td>${gasto.descricao}</td>
-                        <td><strong>${formatarMoeda(gasto.valor)}</strong></td>
-                        <td>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarGastoExtra(${gasto.id})">Editar</button>
-                                <button class="btn-remover" onclick="removerGastoExtra(${gasto.id})" style="padding: 5px 10px; width: auto;">Remover</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        // Atualizar Gráfico Financeiro
+        gastosDoMes.forEach(g => { tbodyGastos.innerHTML += `<tr><td>${g.data}</td><td>${g.descricao}</td><td>${formatarMoeda(g.valor)}</td><td><button class="btn-remover" onclick="removerGastoExtra(${g.id})" style="padding: 5px 10px; width: auto;">X</button></td></tr>`; });
         atualizarGraficoFinanceiro(faturamento, custoPedidos, totalGastosExtras);
     }
 
-    function editarGastoExtra(id) {
-        const gasto = listaGastos.find(g => g.id === id);
-        if (gasto) {
-            document.getElementById('gastoDescricao').value = gasto.descricao;
-            document.getElementById('gastoData').value = gasto.data;
-            document.getElementById('gastoValor').value = gasto.valor;
-            
-            removerGastoExtra(id);
-            window.scrollTo({ top: document.querySelector('#aba-financeiro').offsetTop, behavior: 'smooth' });
-            showNotification("Gasto carregado para edição. Registre-o novamente quando terminar.", "success");
-        }
-    }
-
-    function atualizarGraficoFinanceiro(faturamento, custoPedidos, gastosExtras) {
+    function atualizarGraficoFinanceiro(fat, custP, gastE) {
         const ctx = document.getElementById('graficoFinanceiro').getContext('2d');
-        
-        if (graficoFinanceiroObj) {
-            graficoFinanceiroObj.destroy();
-        }
-
-        if (faturamento === 0 && custoPedidos === 0 && gastosExtras === 0) {
-            return;
-        }
-
-        graficoFinanceiroObj = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Faturamento', 'Custo (Ingred/Mão de Obra)', 'Gastos Avulsos'],
-                datasets: [{
-                    label: 'Valores no Mês (R$)',
-                    data: [faturamento, custoPedidos, gastosExtras],
-                    backgroundColor: [
-                        '#2e7d32', // Verde
-                        '#ff9800', // Laranja
-                        '#c62828'  // Vermelho
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    title: { display: true, text: 'Entradas vs Saídas do Mês' }
-                }
-            }
-        });
+        if (graficoFinanceiroObj) graficoFinanceiroObj.destroy();
+        graficoFinanceiroObj = new Chart(ctx, { type: 'bar', data: { labels: ['Faturamento', 'Custos Pedidos', 'Gastos Extras'], datasets: [{ data: [fat, custP, gastE], backgroundColor: ['#2e7d32', '#ff9800', '#c62828'] }] }, options: { plugins: { legend: { display: false } } } });
     }
 
-    /* --- Backup de Dados --- */
     function exportarBackup() {
-        const dadosBackup = {
-            livroReceitas: JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {},
-            pedidos: JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [],
-            gastos: JSON.parse(localStorage.getItem('appTrufas_gastos')) || [],
-            configs: {
-                horas: localStorage.getItem('appTrufas_horas') || '',
-                valorHora: localStorage.getItem('appTrufas_valorHora') || '',
-                rendimento: localStorage.getItem('appTrufas_rendimento') || '',
-                margem: localStorage.getItem('appTrufas_margem') || ''
-            },
-            dataExportacao: new Date().toISOString()
-        };
-
-        const blob = new Blob([JSON.stringify(dadosBackup, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const hoje = new Date();
-        const dataFormatada = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
-        a.download = `la-doces-backup-${dataFormatada}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showNotification("Backup exportado com sucesso!");
+        const backup = { livroReceitas, pedidos: listaPedidos, gastos: listaGastos, data: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup-la-doces.json`; a.click();
     }
 
     function importarBackup(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
+        const file = event.target.files[0]; if (!file) return;
         const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const dados = JSON.parse(e.target.result);
-                
-                // Validação simples
-                if (dados.livroReceitas !== undefined && Array.isArray(dados.pedidos) && Array.isArray(dados.gastos)) {
-                    showConfirm("Isso irá substituir todos os dados atuais pelos do arquivo. Continuar?", () => {
-                        localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(dados.livroReceitas));
-                        localStorage.setItem('appTrufas_pedidos', JSON.stringify(dados.pedidos));
-                        localStorage.setItem('appTrufas_gastos', JSON.stringify(dados.gastos));
-                        
-                        if (dados.configs) {
-                            localStorage.setItem('appTrufas_horas', dados.configs.horas);
-                            localStorage.setItem('appTrufas_valorHora', dados.configs.valorHora);
-                            localStorage.setItem('appTrufas_rendimento', dados.configs.rendimento);
-                            localStorage.setItem('appTrufas_margem', dados.configs.margem);
-                        }
-
-                        showNotification("Backup restaurado com sucesso! A página será recarregada.");
-                        setTimeout(() => location.reload(), 1500);
-                    });
-                } else {
-                    showNotification("Arquivo de backup inválido ou corrompido.", "error");
-                }
-            } catch (error) {
-                showNotification("Erro ao ler o arquivo de backup.", "error");
+        reader.onload = e => {
+            const dados = JSON.parse(e.target.result);
+            if (dados.livroReceitas) {
+                livroDeReceitas = dados.livroReceitas; listaPedidos = dados.pedidos || []; listaGastos = dados.gastos || [];
+                localStorage.setItem('appTrufas_livroReceitas', JSON.stringify(livroDeReceitas));
+                localStorage.setItem('appTrufas_pedidos', JSON.stringify(listaPedidos));
+                localStorage.setItem('appTrufas_gastos', JSON.stringify(listaGastos));
+                location.reload();
             }
         };
         reader.readAsText(file);
-        
-        // Reset input file
-        event.target.value = '';
     }
 
-    /* --- Funções de Navegação (Tabs) --- */
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        
         document.getElementById(tabId).classList.add('active');
-        
-        const clickedButton = Array.from(document.querySelectorAll('.tab-button')).find(btn => btn.getAttribute('onclick').includes(tabId));
-        if (clickedButton) clickedButton.classList.add('active');
+        const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.outerHTML.includes(tabId));
+        if (btn) btn.classList.add('active');
     }
 </script>
 
@@ -1931,27 +1544,13 @@
     ● OpenClaw Agent Connected
 </div>
 <script>
-    // OpenClaw Canvas Communication API
     function notifyAgent(action, payload = {}) {
-        console.log("OpenClaw Canvas: Action triggered", action, payload);
-        // This function is intended to be intercepted by the OpenClaw Gateway
-        if (window.openclaw) {
-            window.openclaw.send(action, payload);
-        } else {
-            alert("Ação enviada para o agente OpenClaw: " + action);
-        }
+        if (window.openclaw) window.openclaw.send(action, payload);
+        else console.log("OpenClaw Action:", action, payload);
     }
-
-    // Exposed function for the OpenClaw Agent to update the Canvas UI
     window.updateData = (data) => {
-        console.log("OpenClaw Canvas: Data received from Agent", data);
-        // Implement logic to update UI based on agent commands
-        if (data && data.status) {
-            const statusEl = document.getElementById('openclaw-status');
-            if (statusEl) statusEl.innerText = `● ${data.status}`;
-        }
+        if (data && data.status) document.getElementById('openclaw-status').innerText = `● ${data.status}`;
     };
 </script>
-
 </body>
 </html>

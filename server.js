@@ -3,9 +3,10 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Configurar o Express para JSON e permitir conexões externas (CORS)
 app.use(express.json({ limit: '10mb' }));
@@ -34,8 +35,32 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
+// Configuração de autenticação via variáveis de ambiente
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const TOKEN_SECRET = process.env.TOKEN_SECRET || 'fallback-secret';
+
+// Middleware para verificar token
+const authenticate = (req, res, next) => {
+    const token = req.headers['authorization'];
+    if (token === TOKEN_SECRET) {
+        next();
+    } else {
+        res.status(401).json({ error: 'Não autorizado' });
+    }
+};
+
+// Rota de Login
+app.post('/api/login', (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+        res.json({ success: true, token: TOKEN_SECRET });
+    } else {
+        res.status(401).json({ success: false, message: 'Senha incorreta' });
+    }
+});
+
 // Rota para ler um dado do banco
-app.get('/api/store/:key', (req, res) => {
+app.get('/api/store/:key', authenticate, (req, res) => {
     const key = req.params.key;
     db.get("SELECT value FROM store WHERE key = ?", [key], (err, row) => {
         if (err) {
@@ -54,7 +79,7 @@ app.get('/api/store/:key', (req, res) => {
 });
 
 // Rota para salvar um dado no banco
-app.post('/api/store/:key', (req, res) => {
+app.post('/api/store/:key', authenticate, (req, res) => {
     const key = req.params.key;
     const value = JSON.stringify(req.body);
 

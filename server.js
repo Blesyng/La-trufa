@@ -96,6 +96,47 @@ app.post('/api/store/:key', authenticate, (req, res) => {
     });
 });
 
+// --- NOVAS ROTAS PARA O APP ANDROID ---
+
+// Rota simplificada para o App sincronizar tudo sem precisar de login complexo inicialmente
+// (Você pode adicionar o middleware 'authenticate' depois se quiser segurança extra)
+app.get('/api/app/sync', (req, res) => {
+    db.all("SELECT key, value FROM store", [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        const data = {};
+        rows.forEach(row => {
+            try {
+                data[row.key] = JSON.parse(row.value);
+            } catch(e) {
+                data[row.key] = row.value;
+            }
+        });
+        res.json(data);
+    });
+});
+
+// Rota para o App salvar dados específicos (receitas, pedidos, despesas)
+app.post('/api/app/save/:key', (req, res) => {
+    const key = req.params.key;
+    const value = JSON.stringify(req.body);
+
+    const query = `
+        INSERT INTO store (key, value) VALUES (?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value
+    `;
+    
+    db.run(query, [key, value], function(err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ success: true, message: `Dados de ${key} sincronizados` });
+    });
+});
+
+// --- FIM DAS ROTAS DO APP ---
+
 // Rota principal para servir o App
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'la-doces-app.html'));

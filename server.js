@@ -119,7 +119,19 @@ app.get('/api/app/sync', (req, res) => {
 
 // Rota para o App salvar dados específicos (receitas, pedidos, despesas)
 app.post('/api/app/save/:key', (req, res) => {
-    const key = req.params.key;
+    let key = req.params.key;
+    
+    // Mapear chaves do Android para as chaves que o Site já usa
+    const keyMap = {
+        'recipes': 'livroReceitas',
+        'orders': 'pedidos',
+        'expenses': 'gastos'
+    };
+    
+    if (keyMap[key]) {
+        key = keyMap[key];
+    }
+
     const value = JSON.stringify(req.body);
 
     const query = `

@@ -1224,7 +1224,7 @@
             return;
         }
 
-        const pesoBase = converterParaUnidadeBase(pixel, unidade); // ERRO AQUI: era peso, não pixel
+        const pesoBase = converterParaUnidadeBase(peso, unidade);
         const usadoBase = converterParaUnidadeBase(usado, unidadeUsada);
         const custoReal = (preco / pesoBase) * usadoBase;
 

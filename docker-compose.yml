@@ -1,15 +1,29 @@
 version: '3.8'
 
 services:
-  la-doces:
+  app:
     build: .
-    container_name: la-doces-app
+    container_name: la-doces-v1.1-app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3005:3005"
+    env_file: .env
+    depends_on:
+      - db
     volumes:
-      # Mapeia a pasta 'data' do seu servidor para dentro do container
-      # Isso garante que o banco de dados não seja apagado se o container reiniciar
-      - ./data:/usr/src/app/data
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+  db:
+    image: postgres:15-alpine
+    container_name: la-doces-v1.1-db
+    restart: unless-stopped
     environment:
-      - NODE_ENV=production
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

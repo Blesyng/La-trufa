@@ -1,9 +1,5 @@
 node_modules
+postgres_data
+data
 .git
-.gitignore
-npm-debug.log
-Dockerfile
-docker-compose.yml
-README.md
-data/
-dados_la_doces.sqlite
+.env

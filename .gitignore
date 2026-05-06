@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+data/
+*.sqlite
+*.sqlite-journal
+npm-debug.log
+.env

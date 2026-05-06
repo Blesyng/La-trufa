@@ -1,0 +1,17 @@
+{
+  "name": "La-Doces Pro",
+  "short_name": "La-Doces",
+  "description": "Sistema Profissional de Precificação e Gestão de Doceria",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#db2777",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2965/2965313.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

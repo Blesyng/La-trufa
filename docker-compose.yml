@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  la-doces:
+    build: .
+    container_name: la-doces-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mapeia a pasta 'data' do seu servidor para dentro do container
+      # Isso garante que o banco de dados não seja apagado se o container reiniciar
+      - ./data:/usr/src/app/data
+    environment:
+      - NODE_ENV=production

@@ -191,507 +191,188 @@
             background-color: var(--cor-fundo);
             color: var(--cor-principal);
             margin: 0;
-            padding: 1rem;
-            line-height: 1.5;
+            padding: 0.75rem; /* Ajustado para equilíbrio */
+            line-height: 1.45;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            font-size: 0.9375rem; /* Ponto médio ideal */
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         h1 {
             text-align: center;
             color: var(--cor-principal);
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             letter-spacing: -0.025em;
         }
 
         .grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         @media(min-width: 768px) {
             .grid { 
                 grid-template-columns: repeat(2, 1fr); 
                 align-items: start;
+                gap: 1.5rem;
             }
             h1 { font-size: 2.25rem; }
-            body { padding: 2rem; }
+            body { padding: 2rem; font-size: 1rem; }
         }
 
         .painel {
             background: var(--cor-fundo-painel);
-            padding: 1.5rem;
-            border-radius: var(--raio-borda);
-            box-shadow: var(--sombra-card);
+            padding: 1.25rem; /* Equilíbrio entre 1rem e 1.5rem */
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
             border: 1px solid var(--cor-borda);
-            transition: box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .painel:hover {
-            box-shadow: var(--sombra-hover);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px);
         }
 
         h2, h3 {
             font-weight: 600;
             color: var(--cor-principal);
             border-bottom: 1px solid var(--cor-borda);
-            padding-bottom: 0.75rem;
+            padding-bottom: 0.6rem;
             margin-top: 0;
-            margin-bottom: 1.25rem;
-            font-size: 1.25rem;
+            margin-bottom: 1.1rem;
+            font-size: 1.15rem;
             letter-spacing: -0.025em;
         }
 
         .gerenciar-receita {
             background-color: var(--cor-fundo-alt);
-            padding: 1.25rem;
-            border-radius: var(--raio-borda-sm);
-            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.25rem;
             border: 1px dashed var(--cor-borda);
         }
 
         .gerenciar-receita h3 {
-            border: none;
-            padding-bottom: 0;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .form-grupo {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
 
         label {
             display: block;
-            font-weight: 500;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
             color: var(--cor-secundaria);
         }
 
         input, select {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 0.65rem 0.85rem;
             border: 1px solid var(--cor-borda);
-            border-radius: var(--raio-borda-sm);
+            border-radius: 9px;
             box-sizing: border-box;
             background-color: var(--cor-fundo-painel);
             font-family: inherit;
-            font-size: 0.95rem;
+            font-size: 16px;
             color: var(--cor-principal);
             transition: all 0.2s;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
         input:focus, select:focus {
             outline: none;
             border-color: var(--cor-destaque);
-            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.15);
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.08);
         }
 
-        input:disabled {
-            background-color: var(--cor-fundo-alt);
-            color: #9ca3af;
-        }
-
-        .input-com-unidade { 
-            display: flex; 
-            gap: 0.5rem; 
-        }
-
-        .input-com-unidade input { flex: 2; }
-        .input-com-unidade select { flex: 1; }
+        .input-com-unidade select { flex: 1.2; }
 
         .area1-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        @media(min-width: 600px) {
-            .area1-grid { grid-template-columns: 1fr 1fr; }
-            .area1-grid .span-2 { grid-column: span 2; }
-            .gerenciar-receita .form-grupo { display: flex; gap: 1rem; }
-        }
-
-        .botoes-receita {
-            display: grid;
-            grid-template-columns: 1fr;
             gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        @media(min-width: 600px) {
-            .botoes-receita { grid-template-columns: repeat(3, 1fr); }
         }
 
         button {
-            background-color: var(--cor-destaque);
-            color: white;
-            border: none;
-            padding: 0.75rem 1rem;
-            border-radius: var(--raio-borda-sm);
-            cursor: pointer;
-            width: 100%;
-            font-weight: 600;
-            font-size: 0.95rem;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            min-height: 44px;
         }
-
-        button:hover { 
-            background-color: var(--cor-destaque-hover); 
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        .btn-remover {
-            background-color: var(--cor-erro);
-        }
-        .btn-remover:hover { background-color: #dc2626; }
-
-        .btn-secundario {
-            background-color: var(--cor-secundaria);
-        }
-        .btn-secundario:hover { background-color: #374151; }
 
         fieldset {
-            border: 1px solid var(--cor-borda);
-            border-radius: var(--raio-borda-sm);
-            padding: 1.25rem;
-            margin: 0 0 1.5rem 0;
-            background-color: var(--cor-fundo-fieldset);
+            padding: 1rem;
+            margin: 0 0 1.25rem 0;
         }
 
         legend {
-            padding: 0 0.75rem;
-            font-weight: 600;
-            color: var(--cor-secundaria);
-            background-color: var(--cor-fundo-fieldset);
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        /* Tabelas Responsivas */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-            border-radius: var(--raio-borda-sm);
-            border: 1px solid var(--cor-borda);
-            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
         }
 
         table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            min-width: 600px;
+            font-size: 0.85rem;
         }
 
         th, td {
-            text-align: left;
-            padding: 1rem;
-            border-bottom: 1px solid var(--cor-borda);
-        }
-
-        th {
-            background-color: var(--cor-fundo-tabela-header);
-            color: var(--cor-secundaria);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        tbody tr:hover {
-            background-color: var(--cor-fundo-tabela-header);
+            padding: 0.8rem;
         }
 
         .resumo-linha {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.875rem 0;
-            border-bottom: 1px dashed var(--cor-borda);
-            font-size: 0.95rem;
+            padding: 0.75rem 0;
+            font-size: 0.9rem;
         }
 
-        .resumo-linha strong { color: var(--cor-principal); font-size: 1.05rem; }
+        .resumo-linha strong { font-size: 1rem; }
 
         .preco-final-caixa {
-            background-color: var(--cor-fundo-destaque-light);
-            border: 1px solid var(--cor-borda-destaque-light);
             padding: 1.25rem;
-            text-align: center;
-            border-radius: var(--raio-borda-sm);
-            margin-top: 1.5rem;
-        }
-
-        .preco-final-caixa span {
-            display: block;
-            color: var(--cor-destaque);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            border-radius: 14px;
         }
 
         .preco-final-valor {
-            font-size: 2.25rem;
-            font-weight: 700;
-            color: var(--cor-destaque);
-            margin-top: 0.5rem;
-            line-height: 1;
+            font-size: 2.1rem;
         }
 
-        /* --- Notificações --- */
-        #notification-container {
-            position: fixed;
-            top: 1.5rem;
-            right: 1.5rem;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .notification {
-            padding: 1rem 1.25rem;
-            border-radius: var(--raio-borda-sm);
-            color: white;
-            font-weight: 500;
-            font-size: 0.95rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            transform: translateX(100%);
-            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .notification.success { background-color: var(--cor-sucesso); }
-        .notification.error { background-color: var(--cor-erro); }
-
-        .notification-close {
-            background: none;
-            border: none;
-            color: white;
-            box-shadow: none;
-            padding: 0;
-            width: auto;
-            opacity: 0.8;
-        }
-
-        .notification-close:hover {
-            opacity: 1;
-            transform: none;
-            box-shadow: none;
-            background: none;
-        }
-
-        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideOut { to { opacity: 0; transform: translateX(100%); } }
-
-        /* --- Modal --- */
-        .modal-backdrop {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-        }
-
-        .modal-content {
-            background: var(--cor-fundo-painel);
-            padding: 2rem;
-            border-radius: var(--raio-borda);
-            text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            max-width: 400px;
-            width: 100%;
-            animation: popIn 0.3s ease-out;
-        }
-
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-content p {
-            font-size: 1.1rem;
-            color: var(--cor-principal);
-            margin: 0 0 1.5rem 0;
-            font-weight: 500;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        @media(min-width: 768px) {
-            .dashboard-cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* --- Menu de Abas (Bottom Nav no Mobile) --- */
+        /* --- Menu de Abas (Balanced Dock) --- */
         body {
-            padding-bottom: 5rem; /* Espaço para o menu fixo no celular */
-        }
-
-        .tabs-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .acoes-header {
-            display: flex;
-            gap: 0.5rem;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .acoes-header button {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
+            padding-bottom: 5.5rem;
         }
 
         .tabs {
-            position: fixed;
-            bottom: 1.5rem; /* Descola do fundo da tela */
-            left: 50%;
-            transform: translateX(-50%); /* Centraliza na tela */
-            width: 90%; /* Não ocupa 100% da largura, deixando margens nas laterais */
-            max-width: 400px; /* Limita a largura em telas intermediárias antes do break de desktop */
-            background: var(--cor-tabs); /* Leve transparência para dar o tom moderno de dock */
-            backdrop-filter: blur(10px); /* Efeito de vidro (glassmorphism) típico de sistema nativo */
-            display: flex;
-            justify-content: space-around;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Sombra difusa e elegante estilo macOS */
-            z-index: 1000;
-            padding: 0.5rem; /* Padding reduzido, apenas o contorno dos botões */
-            border: 1px solid rgba(0,0,0, 0.05); /* Borda clarinha quase invisível */
-            border-radius: 2rem; /* Cantos totalmente arredondados no contêiner principal */
+            bottom: 1.25rem;
+            width: 90%;
+            max-width: 440px;
+            padding: 0.4rem;
+            border-radius: 25px;
         }
 
         .tab-button {
-            background-color: transparent;
-            color: var(--cor-secundaria);
-            border: none;
-            padding: 0.625rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 1.5rem; /* Botões arredondados dentro do dock arredondado */
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            flex: 1;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
-            min-height: 3.5rem; /* Área de clique confortável preservada */
+            padding: 0.5rem;
+            border-radius: 18px;
+            gap: 2px;
         }
         
-        .tab-icon {
-            font-size: 1.75rem; /* Ícone grande mantido para celular */
-            transition: transform 0.2s ease; /* Animação no hover do ícone */
-        }
-        
-        .tab-label {
-            display: none; /* Mantém texto escondido no celular */
-        }
-
-        .tab-button:hover, .tab-button.active {
-            color: var(--cor-destaque);
-            background-color: var(--cor-fundo-destaque-light); /* Leve destaque de fundo no ícone ativo */
-            transform: translateY(-2px); /* Efeito de levitar estilo Dock */
-        }
-        
-        .tab-button:active {
-            transform: scale(0.95); /* Efeito físico de apertar o botão */
-        }
+        .tab-icon { font-size: 1.6rem; }
 
         @media(min-width: 768px) {
-            body {
-                padding-bottom: 2rem; /* Reseta o padding no desktop */
-            }
-            .tabs-container {
-                justify-content: space-between;
-                background: var(--cor-fundo-painel);
-                padding: 0.75rem 1rem;
-                border-radius: var(--raio-borda);
-                box-shadow: var(--sombra-card);
-                border: 1px solid var(--cor-borda);
-            }
-            .acoes-header {
-                width: auto;
-            }
-            .acoes-header button {
-                flex: none;
-                width: auto;
-            }
-            .tabs {
-                position: static;
-                width: auto;
-                box-shadow: none;
-                padding: 0;
-                border: none;
-                background: transparent;
-                justify-content: flex-start;
-                gap: 0.5rem;
-                min-height: auto;
-                transform: none; /* Reseta o transform do mobile */
-                border-radius: 0;
-            }
-            .tab-button {
-                flex-direction: row;
-                font-size: 1rem;
-                padding: 0.75rem 1.5rem;
-                min-height: auto;
-                border-radius: var(--raio-borda-sm); /* Retorna o arredondamento padrão no PC */
-            }
-            .tab-icon {
-                font-size: 1.25rem; /* Tamanho padrão no PC */
-            }
-            .tab-label {
-                display: inline; /* Mostra o texto no PC */
-            }
+            body { padding-bottom: 2rem; }
+            .tabs { border-radius: 0; }
+            .tab-button { border-radius: 10px; }
+            .tab-icon { font-size: 1.2rem; }
         }
 
         .tab-content {
@@ -801,51 +482,82 @@
 
     <div id="aba-home" class="tab-content active">
         <div class="grid">
-            <div class="painel span-2">
-                <h2>👋 Olá, Camila!</h2>
-                <p style="color: var(--cor-secundaria);">Veja como está o desempenho da sua doceria neste mês.</p>
+            <div class="painel span-2" style="position: relative; overflow: hidden;">
+                <!-- Efeito de brilho sutil no fundo -->
+                <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: var(--cor-fundo-destaque-light); border-radius: 50%; filter: blur(40px); opacity: 0.6; z-index: 0;"></div>
                 
-                <div class="dashboard-cards" style="margin-top: 25px;">
-                    <div class="preco-final-caixa" style="background-color: var(--cor-fundo-sucesso-light); border-color: var(--cor-borda-sucesso); margin-top: 0;">
-                        <span style="color: var(--cor-texto-sucesso); font-size: 0.8rem; text-transform: uppercase; font-weight: bold;">Lucro por Hora Real</span>
-                        <div class="preco-final-valor" id="homeLucroPorHora" style="color: var(--cor-texto-sucesso);">R$ 0,00</div>
-                        <p style="font-size: 0.7rem; color: var(--cor-secundaria); margin-top: 5px;">O quanto você ganha de verdade por cada hora trabalhada.</p>
+                <div style="position: relative; z-index: 1;">
+                    <h2 style="border: none; margin-bottom: 0.5rem;">👋 Olá, Camila!</h2>
+                    <p style="color: var(--cor-secundaria); font-size: 0.9rem;">Veja como está o desempenho da sua doceria neste mês.</p>
+                </div>
+                
+                <div class="dashboard-cards" style="margin-top: 20px; position: relative; z-index: 1;">
+                    <div class="preco-final-caixa dashboard-card-premium" style="background: linear-gradient(135deg, var(--cor-fundo-sucesso-light), #fff); border-color: var(--cor-borda-sucesso); margin-top: 0; padding: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">💰</div>
+                        <span style="color: var(--cor-texto-sucesso); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Lucro p/ Hora Real</span>
+                        <div class="preco-final-valor" id="homeLucroPorHora" style="color: var(--cor-texto-sucesso); font-size: 1.6rem; margin-top: 2px;">R$ 0,00</div>
                     </div>
-                    <div class="preco-final-caixa" style="background-color: var(--cor-fundo-info-light); border-color: var(--cor-borda-info); margin-top: 0;">
-                        <span style="color: var(--cor-texto-info); font-size: 0.8rem; text-transform: uppercase; font-weight: bold;">Doce Mais Lucrativo</span>
-                        <div class="preco-final-valor" id="homeDoceDestaque" style="color: var(--cor-texto-info); font-size: 1.4rem;">---</div>
-                        <p style="font-size: 0.7rem; color: var(--cor-secundaria); margin-top: 5px;">O produto que trouxe o maior lucro líquido no mês.</p>
+                    <div class="preco-final-caixa dashboard-card-premium" style="background: linear-gradient(135deg, var(--cor-fundo-info-light), #fff); border-color: var(--cor-borda-info); margin-top: 0; padding: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">🏆</div>
+                        <span style="color: var(--cor-texto-info); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Top Doce</span>
+                        <div class="preco-final-valor" id="homeDoceDestaque" style="color: var(--cor-texto-info); font-size: 1.2rem; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">---</div>
                     </div>
-                    <div class="preco-final-caixa" style="background-color: var(--cor-fundo-destaque-light); border-color: var(--cor-borda-destaque-light); margin-top: 0;">
-                        <span style="color: var(--cor-destaque); font-size: 0.8rem; text-transform: uppercase; font-weight: bold;">Tempo Total Produzido</span>
-                        <div class="preco-final-valor" id="homeTempoTotal" style="color: var(--cor-destaque);">0h 0m</div>
-                        <p style="font-size: 0.7rem; color: var(--cor-secundaria); margin-top: 5px;">Soma do tempo gasto em todas as receitas feitas.</p>
+                    <div class="preco-final-caixa dashboard-card-premium" style="background: linear-gradient(135deg, var(--cor-fundo-destaque-light), #fff); border-color: var(--cor-borda-destaque-light); margin-top: 0; padding: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">⏱️</div>
+                        <span style="color: var(--cor-destaque); font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.05em;">Tempo Produzido</span>
+                        <div class="preco-final-valor" id="homeTempoTotal" style="color: var(--cor-destaque); font-size: 1.6rem; margin-top: 2px;">0h 0m</div>
                     </div>
                 </div>
             </div>
 
             <div class="painel">
-                <h3>🗓️ Resumo do Mês</h3>
-                <div style="margin-top: 15px;">
-                    <div class="resumo-linha"><span>Pedidos Pagos</span><strong id="homeQtdPedidos">0</strong></div>
-                    <div class="resumo-linha"><span>Clientes Atendidos</span><strong id="homeQtdClientes">0</strong></div>
-                    <div class="resumo-linha"><span>Gasto com Ingredientes</span><strong id="homeCustoIngredientes">R$ 0,00</strong></div>
-                    <div class="resumo-linha"><span>Mão de Obra (Pro-labore)</span><strong id="homeCustoMaoObra">R$ 0,00</strong></div>
-                    <hr style="border: 1px dashed var(--cor-borda); margin: 15px 0;">
-                    <div class="resumo-linha"><span style="font-weight: bold;">Lucro Líquido Real</span><strong id="homeLucroLiquido" style="color: var(--cor-sucesso); font-size: 1.2rem;">R$ 0,00</strong></div>
+                <h3>🗓️ Resumo Financeiro</h3>
+                <div style="margin-top: 10px;">
+                    <div class="resumo-linha"><span>📦 Pedidos Concluídos</span><strong id="homeQtdPedidos">0</strong></div>
+                    <div class="resumo-linha"><span>👤 Clientes Atendidos</span><strong id="homeQtdClientes">0</strong></div>
+                    <div class="resumo-linha"><span>🍎 Custo de Insumos</span><strong id="homeCustoIngredientes">R$ 0,00</strong></div>
+                    <div class="resumo-linha"><span>👩‍🍳 Mão de Obra</span><strong id="homeCustoMaoObra">R$ 0,00</strong></div>
+                    <div class="resumo-linha" style="border-top: 2px solid var(--cor-borda); margin-top: 10px; padding-top: 15px; border-bottom: none;">
+                        <span style="font-weight: 800; color: var(--cor-principal);">LUCRO LÍQUIDO</span>
+                        <strong id="homeLucroLiquido" style="color: var(--cor-sucesso); font-size: 1.35rem;">R$ 0,00</strong>
+                    </div>
                 </div>
-                <button onclick="switchTab('aba-financeiro')" style="margin-top: 20px; width: 100%;">Ver Detalhes no Financeiro</button>
             </div>
 
             <div class="painel">
                 <h3>📢 Alertas de Estoque</h3>
-                <div id="homeAlertasEstoque" style="margin-top: 15px;">
+                <div id="homeAlertasEstoque" style="margin-top: 10px;">
                     <!-- Preenchido via JS -->
                 </div>
-                <button class="btn-secundario" onclick="switchTab('aba-despensa')" style="margin-top: 10px; width: 100%;">Ir para Despensa</button>
+                <button class="btn-secundario" onclick="switchTab('aba-despensa')" style="margin-top: 15px; width: 100%; font-size: 0.85rem;">Gerenciar Estoque</button>
             </div>
         </div>
     </div>
+    <style>
+        .dashboard-card-premium {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-width: 2px;
+        }
+        .dashboard-card-premium:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--cor-secundaria);
+        }
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .empty-state-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
 
     <div id="aba-receitas" class="tab-content">
         <div class="grid">
@@ -1603,6 +1315,12 @@
         const tbody = document.getElementById('listaClientes');
         if (!tbody) return;
         tbody.innerHTML = '';
+        
+        if (listaClientes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">Nenhum cliente cadastrado ainda.</div></div></td></tr>`;
+            return;
+        }
+
         listaClientes.forEach(cli => {
             const niver = cli.birthday ? new Date(cli.birthday).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}) : '-';
             tbody.innerHTML += `
@@ -1723,6 +1441,12 @@
         const tbody = document.getElementById('listaDespensa');
         if (!tbody) return;
         tbody.innerHTML = '';
+
+        if (listaIngredientesDespensa.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-text">Sua despensa está vazia.</div></div></td></tr>`;
+            return;
+        }
+
         listaIngredientesDespensa.forEach(ing => {
             const estoqueAtual = parseFloat(ing.current_stock) || 0;
             const estoqueMinimo = parseFloat(ing.min_stock) || 0;

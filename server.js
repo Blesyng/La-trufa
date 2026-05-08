@@ -70,7 +70,7 @@ const initDb = async (retries = 5) => {
       // Tabela de Despensa (Ingredientes Globais)
       await pool.query(`CREATE TABLE IF NOT EXISTS ingredients (
         id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
+        name TEXT UNIQUE NOT NULL,
         price DECIMAL(10,2) NOT NULL,
         package_size DECIMAL(10,2) NOT NULL,
         unit TEXT NOT NULL,
@@ -91,7 +91,7 @@ const initDb = async (retries = 5) => {
       // Tabela de Receitas (v1.1 Expandida)
       await pool.query(`CREATE TABLE IF NOT EXISTS recipes (
         id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
+        name TEXT UNIQUE NOT NULL,
         category TEXT DEFAULT 'Outros',
         prep_time INTEGER DEFAULT 0,
         hourly_rate DECIMAL(10,2) DEFAULT 0,
@@ -247,7 +247,7 @@ app.post('/api/store/:key', authenticate, async (req, res) => {
 });
 
 // --- Rotas de Clientes (CRM) ---
-app.get('/api/clients', async (req, res) => {
+app.get('/api/clients', authenticate, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM clients ORDER BY name');
         res.json(result.rows);
@@ -256,7 +256,7 @@ app.get('/api/clients', async (req, res) => {
     }
 });
 
-app.post('/api/clients', async (req, res) => {
+app.post('/api/clients', authenticate, async (req, res) => {
     const { name, phone, birthday, address, notes } = req.body;
     try {
         const result = await pool.query(
@@ -269,7 +269,7 @@ app.post('/api/clients', async (req, res) => {
     }
 });
 
-app.delete('/api/clients/:id', async (req, res) => {
+app.delete('/api/clients/:id', authenticate, async (req, res) => {
     const id = req.params.id;
     try {
         await pool.query('DELETE FROM clients WHERE id = $1', [id]);
@@ -280,7 +280,7 @@ app.delete('/api/clients/:id', async (req, res) => {
 });
 
 // --- Rotas de Despensa ---
-app.get('/api/ingredients', async (req, res) => {
+app.get('/api/ingredients', authenticate, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM ingredients ORDER BY name');
         res.json(result.rows);
@@ -289,16 +289,15 @@ app.get('/api/ingredients', async (req, res) => {
     }
 });
 
-app.post('/api/ingredients', async (req, res) => {
-    const { name, price, package_size, unit } = req.body;
+app.post('/api/ingredients', authenticate, async (req, res) => {
+    const { name, price, package_size, unit, min_stock, current_stock } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO ingredients (name, price, package_size, unit) VALUES ($1, $2, $3, $4) RETURNING *',
-            [name, price, package_size, unit]
+            'INSERT INTO ingredients (name, price, package_size, unit, min_stock, current_stock) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (name) DO UPDATE SET price = $2, package_size = $3, unit = $4, min_stock = $5, current_stock = $6 RETURNING *',
+            [name, price, package_size, unit, min_stock || 0, current_stock || 0]
         );
         const newIng = result.rows[0];
         
-        // Salvar no histórico
         await pool.query(
             'INSERT INTO price_history (ingredient_id, price, package_size) VALUES ($1, $2, $3)',
             [newIng.id, price, package_size]
@@ -310,7 +309,7 @@ app.post('/api/ingredients', async (req, res) => {
     }
 });
 
-app.delete('/api/ingredients/:id', async (req, res) => {
+app.delete('/api/ingredients/:id', authenticate, async (req, res) => {
     const id = req.params.id;
     try {
         await pool.query('DELETE FROM ingredients WHERE id = $1', [id]);
@@ -320,10 +319,9 @@ app.delete('/api/ingredients/:id', async (req, res) => {
     }
 });
 
-// Atualizar estoque de ingrediente
-app.patch('/api/ingredients/:id/stock', async (req, res) => {
+app.patch('/api/ingredients/:id/stock', authenticate, async (req, res) => {
     const id = req.params.id;
-    const { amount } = req.body; // Quantidade a subtrair (pode ser negativa para adicionar)
+    const { amount } = req.body;
     try {
         await pool.query(
             'UPDATE ingredients SET current_stock = current_stock - $1 WHERE id = $2',
@@ -335,11 +333,96 @@ app.patch('/api/ingredients/:id/stock', async (req, res) => {
     }
 });
 
-// --- Rotas de Receitas (v1.1) ---
-app.get('/api/recipes', async (req, res) => {
+// --- Rotas de Receitas (Relacional v1.2) ---
+
+// Obter todas as receitas (com seus ingredientes)
+app.get('/api/recipes', authenticate, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM recipes');
-        res.json(result.rows);
+        const recipesResult = await pool.query('SELECT * FROM recipes ORDER BY name');
+        const recipes = recipesResult.rows;
+
+        // Para cada receita, buscar seus itens/ingredientes
+        for (let recipe of recipes) {
+            const itemsResult = await pool.query(`
+                SELECT ri.*, i.name as ingredient_name 
+                FROM recipe_items ri 
+                LEFT JOIN ingredients i ON ri.ingredient_id = i.id 
+                WHERE ri.recipe_id = $1`, 
+                [recipe.id]
+            );
+            recipe.ingredients = itemsResult.rows;
+        }
+        
+        res.json(recipes);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Salvar/Criar Receita Completa
+app.post('/api/recipes', authenticate, async (req, res) => {
+    const { 
+        name, category, prep_time, hourly_rate, indirect_cost_pct, 
+        profit_margin, allergens, calories, shelf_life_days, ingredients 
+    } = req.body;
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Inserir ou atualizar a receita principal
+        const recipeResult = await client.query(`
+            INSERT INTO recipes (
+                name, category, prep_time, hourly_rate, indirect_cost_pct, 
+                profit_margin, allergens, calories, shelf_life_days
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            ON CONFLICT (name) DO UPDATE SET 
+                category = $2, prep_time = $3, hourly_rate = $4, 
+                indirect_cost_pct = $5, profit_margin = $6, allergens = $7, 
+                calories = $8, shelf_life_days = $9
+            RETURNING id`,
+            [name, category, prep_time, hourly_rate, indirect_cost_pct, profit_margin, allergens, calories, shelf_life_days]
+        );
+
+        const recipeId = recipeResult.rows[0].id;
+
+        // 2. Limpar itens antigos (para atualização)
+        await client.query('DELETE FROM recipe_items WHERE recipe_id = $1', [recipeId]);
+
+        // 3. Inserir novos itens
+        if (ingredients && ingredients.length > 0) {
+            for (let item of ingredients) {
+                // Tenta encontrar o ID do ingrediente pelo nome se não foi fornecido
+                let ingredientId = item.ingredient_id;
+                if (!ingredientId) {
+                    const ingLookup = await client.query('SELECT id FROM ingredients WHERE name = $1', [item.nome]);
+                    if (ingLookup.rows.length > 0) ingredientId = ingLookup.rows[0].id;
+                }
+
+                await client.query(`
+                    INSERT INTO recipe_items (
+                        recipe_id, ingredient_id, amount, unit, 
+                        price_at_time, package_size_at_time
+                    ) VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [recipeId, ingredientId, item.qtdUsada || item.amount, item.unidadeUsada || item.unit, item.precoEmb || item.price_at_time, item.pesoEmb || item.package_size_at_time]
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+        res.json({ success: true, id: recipeId });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally {
+        client.release();
+    }
+});
+
+app.delete('/api/recipes/:id', authenticate, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM recipes WHERE id = $1', [req.params.id]);
+        res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

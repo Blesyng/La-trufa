@@ -2,6 +2,8 @@ const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -18,7 +20,12 @@ const pool = new Pool({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(cors());
-app.use(express.static(__dirname));
+
+// Serve apenas arquivos públicos específicos para evitar vazamento de código e .env
+app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'manifest.json')));
+app.get('/sw.js', (req, res) => res.sendFile(path.join(__dirname, 'sw.js')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'la-doces-app.html')));
+app.get('/la-doces-app.html', (req, res) => res.sendFile(path.join(__dirname, 'la-doces-app.html')));
 
 // Inicializar tabelas (Fase 2)
 const initDb = async (retries = 5) => {
@@ -119,34 +126,49 @@ const initDb = async (retries = 5) => {
 
 initDb();
 
-// Middleware de Autenticação
+// Middleware de Autenticação (JWT)
 const authenticate = (req, res, next) => {
     const token = req.headers['authorization'];
+    if (!token) return res.status(401).json({ error: 'Não autorizado' });
+
+    // Mantém compatibilidade com o token legado (temporário)
     if (token === process.env.TOKEN_SECRET) {
-        next();
-    } else {
-        res.status(401).json({ error: 'Não autorizado' });
+        return next();
     }
+
+    jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Token inválido ou expirado' });
+        req.user = user;
+        next();
+    });
 };
 
 // Rotas da API (v1.1)
 
-// Rota de Login (v1.2 Multi-user)
+// Rota de Login (JWT + bcrypt)
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        // Suporte para login antigo (apenas senha)
+        // Suporte para login legado (admin password do .env)
         if (!username && password === process.env.ADMIN_PASSWORD) {
-            return res.json({ success: true, token: process.env.TOKEN_SECRET, role: 'admin', user: 'admin' });
+            const token = jwt.sign({ username: 'admin', role: 'admin' }, process.env.TOKEN_SECRET, { expiresIn: '24h' });
+            return res.json({ success: true, token: token, role: 'admin', user: 'admin' });
         }
 
         const result = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
         if (result.rows.length > 0) {
             const user = result.rows[0];
-            if (user.password === password) {
+            const match = await bcrypt.compare(password, user.password);
+            
+            if (match || user.password === password) { // Fallback para senha em texto puro (migração)
+                if (user.password === password) {
+                    const hashed = await bcrypt.hash(password, 10);
+                    await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashed, user.id]);
+                }
+                const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, process.env.TOKEN_SECRET, { expiresIn: '24h' });
                 res.json({ 
                     success: true, 
-                    token: process.env.TOKEN_SECRET, 
+                    token: token, 
                     role: user.role,
                     user: user.username 
                 });
@@ -174,9 +196,10 @@ app.get('/api/users', authenticate, async (req, res) => {
 app.post('/api/users', authenticate, async (req, res) => {
     const { username, password, role } = req.body;
     try {
+        const hashedPassword = await bcrypt.hash(password, 10);
         await pool.query(
             'INSERT INTO users (username, password, role) VALUES ($1, $2, $3)',
-            [username, password, role || 'user']
+            [username, hashedPassword, role || 'user']
         );
         res.json({ success: true });
     } catch (err) {

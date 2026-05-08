@@ -3,10 +3,10 @@ version: '3.8'
 services:
   app:
     build: .
-    container_name: la-doces-v1.1-app
+    container_name: la-doces-app
     restart: unless-stopped
     ports:
-      - "3005:3005"
+      - "3000:3000"
     env_file: .env
     depends_on:
       - db

@@ -312,6 +312,14 @@
             border-radius: 10px;
             font-size: 0.9rem;
             min-height: 44px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.96);
+            opacity: 0.9;
         }
 
         fieldset {
@@ -377,15 +385,16 @@
 
         .tab-content {
             display: none;
-            animation: fadeIn 0.4s ease;
+            opacity: 0;
+            transform: translateY(8px);
         }
 
         .tab-content.active {
             display: block;
+            animation: premiumFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes premiumFadeIn {
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -2438,7 +2447,11 @@ Agradecemos a preferência!`;
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+        const target = document.getElementById(tabId);
+        if (target) {
+            target.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         const btn = Array.from(document.querySelectorAll('.tab-button')).find(b => b.outerHTML.includes(tabId));
         if (btn) btn.classList.add('active');
     }

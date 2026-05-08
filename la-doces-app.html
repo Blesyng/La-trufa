@@ -9,17 +9,74 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script>
+        let newWorker;
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then(reg => {
                     console.log('SW registrado com sucesso!', reg);
+
+                    reg.addEventListener('updatefound', () => {
+                        newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nova versão disponível!
+                                exibirAvisoUpdate();
+                            }
+                        });
+                    });
                 }).catch(err => {
                     console.log('Falha ao registrar SW', err);
                 });
+
+                // Recarrega a página automaticamente quando o novo SW assume o controle
+                let refreshing;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing) return;
+                    window.location.reload();
+                    refreshing = true;
+                });
             });
+        }
+
+        function exibirAvisoUpdate() {
+            const div = document.createElement('div');
+            div.id = 'update-notification';
+            div.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--cor-destaque);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 50px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                font-weight: 600;
+                animation: slideUp 0.5s ease-out;
+            `;
+            div.innerHTML = `
+                <span>✨ Nova versão disponível!</span>
+                <button onclick="atualizarApp()" style="background: white; color: var(--cor-destaque); padding: 5px 15px; border-radius: 20px; width: auto; font-size: 0.8rem;">ATUALIZAR</button>
+            `;
+            document.body.appendChild(div);
+        }
+
+        function atualizarApp() {
+            if (newWorker) {
+                newWorker.postMessage('skipWaiting');
+            }
         }
     </script>
     <style>
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         :root {

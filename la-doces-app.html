@@ -2720,18 +2720,4 @@ Agradecemos a preferência!`;
     }
 </script>
 
-<!-- OpenClaw Canvas Integration -->
-<div id="openclaw-status" style="position: fixed; bottom: 20px; right: 20px; padding: 8px 16px; border-radius: 9999px; background: #065f46; color: #34d399; font-size: 0.875rem; font-family: sans-serif; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: opacity 0.3s;" onclick="notifyAgent('status_click')">
-    ● OpenClaw Agent Connected
-</div>
-<script>
-    function notifyAgent(action, payload = {}) {
-        if (window.openclaw) window.openclaw.send(action, payload);
-        else console.log("OpenClaw Action:", action, payload);
-    }
-    window.updateData = (data) => {
-        if (data && data.status) document.getElementById('openclaw-status').innerText = `● ${data.status}`;
-    };
-</script>
-</body>
-</html>
+</body></html>

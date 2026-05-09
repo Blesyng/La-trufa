@@ -308,23 +308,79 @@
         }
 
         button {
-            padding: 0.7rem 1rem;
-            border-radius: 10px;
+            padding: 0.7rem 1.2rem;
+            border-radius: 12px;
             font-size: 0.9rem;
+            font-weight: 600;
             min-height: 44px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            border: 1px solid transparent;
+            background: var(--cor-destaque);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(219, 39, 119, 0.2);
             -webkit-tap-highlight-color: transparent;
         }
 
+        button:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 12px rgba(219, 39, 119, 0.3);
+            background: linear-gradient(135deg, var(--cor-destaque), var(--cor-destaque-hover));
+        }
+
         button:active {
-            transform: scale(0.96);
+            transform: scale(0.97);
             opacity: 0.9;
         }
 
+        .btn-secundario {
+            background: var(--cor-fundo-alt) !important;
+            color: var(--cor-principal) !important;
+            border: 1px solid var(--cor-borda) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-secundario:hover {
+            background: var(--cor-borda) !important;
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05) !important;
+        }
+
+        .btn-remover {
+            background: var(--cor-fundo-erro-light) !important;
+            color: var(--cor-erro) !important;
+            border: 1px solid var(--cor-borda-erro) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-remover:hover {
+            background: var(--cor-erro) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        /* Glassmorphism para Painéis em Temas Escuros */
+        [data-theme="dark"] .painel, [data-theme="black"] .painel {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="black"] .painel {
+            background: rgba(10, 10, 10, 0.8);
+        }
+
         fieldset {
-            padding: 1rem;
-            margin: 0 0 1.25rem 0;
+            padding: 1.25rem;
+            margin: 0 0 1.5rem 0;
+            border: 1px solid var(--cor-borda);
+            border-radius: var(--raio-borda);
+            background-color: var(--cor-fundo-fieldset);
         }
 
         legend {
@@ -355,32 +411,110 @@
             font-size: 2.1rem;
         }
 
-        /* --- Menu de Abas (Balanced Dock) --- */
-        body {
-            padding-bottom: 5.5rem;
+        /* --- Menu de Abas (Liquid Glass Dock) --- */
+        .tabs-container {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 500px;
+            z-index: 999;
         }
 
         .tabs {
-            bottom: 1.25rem;
-            width: 90%;
-            max-width: 440px;
-            padding: 0.4rem;
-            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .tabs {
+            background: rgba(31, 41, 55, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="black"] .tabs {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .tab-button {
-            padding: 0.5rem;
-            border-radius: 18px;
-            gap: 2px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0.4rem;
+            min-height: auto;
+            flex-direction: column;
+            color: var(--cor-secundaria);
+            width: 14%; /* 7 abas / 100 */
+            border-radius: 20px !important;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
         }
-        
-        .tab-icon { font-size: 1.6rem; }
+
+        .tab-button.active {
+            color: var(--cor-destaque) !important;
+            background: rgba(219, 39, 119, 0.1) !important;
+            transform: translateY(-5px);
+        }
+
+        .tab-icon {
+            font-size: 1.6rem;
+            margin-bottom: 0;
+        }
+
+        .tab-label {
+            display: none; /* Escondido no mobile por padrão */
+        }
 
         @media(min-width: 768px) {
-            body { padding-bottom: 2rem; }
-            .tabs { border-radius: 0; }
-            .tab-button { border-radius: 10px; }
-            .tab-icon { font-size: 1.2rem; }
+            .tabs-container {
+                position: static;
+                transform: none;
+                width: 100%;
+                max-width: none;
+                margin-bottom: 1.5rem;
+            }
+
+            .tabs {
+                background: var(--cor-fundo-painel);
+                backdrop-filter: none;
+                border-radius: var(--raio-borda);
+                justify-content: flex-start;
+                gap: 10px;
+            }
+
+            .tab-button {
+                flex-direction: row;
+                width: auto;
+                padding: 0.75rem 1.25rem;
+                gap: 8px;
+            }
+
+            .tab-label { 
+                display: block; 
+                font-size: 0.85rem; 
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.02em;
+            }
+            
+            .tab-icon { font-size: 1.1rem; }
+            
+            .tab-button.active {
+                background: var(--cor-destaque) !important;
+                color: white !important;
+                transform: none;
+            }
+        }
+        
+        body {
+            padding-bottom: 6rem;
         }
 
         .tab-content {
@@ -392,6 +526,61 @@
         .tab-content.active {
             display: block;
             animation: premiumFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* --- Sistema de Notificações (Toasts) --- */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: var(--cor-fundo-painel);
+            color: var(--cor-principal);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--cor-destaque);
+            min-width: 280px;
+            max-width: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            pointer-events: auto;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            font-weight: 500;
+        }
+
+        .notification.success { border-left-color: var(--cor-sucesso); }
+        .notification.error { border-left-color: var(--cor-erro); }
+        .notification.info { border-left-color: var(--cor-info); }
+
+        .notification-close {
+            background: none !important;
+            border: none !important;
+            color: var(--cor-secundaria) !important;
+            font-size: 1.25rem !important;
+            padding: 0 !important;
+            min-height: auto !important;
+            box-shadow: none !important;
+            cursor: pointer;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
 
         @keyframes premiumFadeIn {
@@ -415,6 +604,135 @@
         td .btn-remover {
             padding: 0.4rem 0.75rem;
             font-size: 0.8rem;
+        }
+
+        /* --- Skeleton Loading & Badges (Pro Features) --- */
+        .skeleton {
+            background-color: var(--cor-borda);
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0.4),
+                rgba(255, 255, 255, 0)
+            );
+            background-size: 200px 100%;
+            background-repeat: no-repeat;
+            background-position: left -40px top 0;
+            animation: shine 1.2s ease-in-out infinite;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: right -40px top 0;
+            }
+        }
+
+        .badge-alerta {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: var(--cor-erro);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 50%;
+            font-weight: 800;
+            border: 2px solid var(--cor-fundo-painel);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .tab-button { position: relative; }
+
+        /* --- Mobile Optimization (Item 4: Table to Cards) --- */
+        @media screen and (max-width: 768px) {
+            .table-container {
+                border: none;
+                overflow-x: visible;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                background: var(--cor-fundo-painel);
+                border: 1px solid var(--cor-borda);
+                border-radius: var(--raio-borda);
+                margin-bottom: 1rem;
+                padding: 0.5rem;
+                box-shadow: var(--sombra-card);
+            }
+
+            td {
+                border: none;
+                border-bottom: 1px solid var(--cor-fundo-alt);
+                position: relative;
+                padding-left: 50% !important;
+                text-align: right;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+
+            td:last-child {
+                border-bottom: 0;
+                justify-content: center;
+                padding-left: 0 !important;
+                margin-top: 0.5rem;
+            }
+
+            td:before {
+                position: absolute;
+                top: 0;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: 700;
+                color: var(--cor-secundaria);
+                text-align: left;
+                height: 100%;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Inputs & Buttons Touch-Optimization */
+            input, select, button {
+                font-size: 16px !important; /* Prevent iOS zoom */
+                min-height: 48px; /* Better touch target */
+            }
+
+            .tab-button {
+                min-height: auto;
+            }
+
+            .dashboard-cards {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .grid {
+                gap: 1rem;
+            }
+
+            .painel {
+                padding: 1rem;
+            }
         }
     </style></head>
 <body>
@@ -457,7 +775,7 @@
                 <span class="tab-label">Receitas</span>
             </button>
             <button class="tab-button" onclick="switchTab('aba-despensa')">
-                <span class="tab-icon">📦</span>
+                <span class="tab-icon">📦<span id="badge-estoque" class="badge-alerta" style="display: none;">!</span></span>
                 <span class="tab-label">Despensa</span>
             </button>
             <button class="tab-button" onclick="switchTab('aba-pedidos')">
@@ -478,14 +796,10 @@
             </button>
         </div>
         <div class="acoes-header">
-            <select id="seletorTema" onchange="alterarTema(this.value)" style="padding: 0.5rem; border-radius: var(--raio-borda-sm); background-color: var(--cor-fundo-painel); color: var(--cor-principal); border: 1px solid var(--cor-borda); font-weight: 500; font-size: 0.9rem;">
-                <option value="light">☀️ Claro</option>
-                <option value="dark">🌙 Escuro (Cinza)</option>
-                <option value="black">🌑 Alto Contraste (Preto)</option>
-            </select>
-            <button onclick="exportarBackup()" class="btn-secundario">📥 Exportar</button>
-            <button onclick="document.getElementById('importarArquivo').click()" style="background-color: var(--cor-principal); color: var(--cor-fundo-painel); border: 1px solid var(--cor-secundaria);">📤 Importar</button>
-            <input type="file" id="importarArquivo" accept=".json" style="display: none;" onchange="importarBackup(event)">
+            <div id="sync-indicator" style="font-size: 0.75rem; color: var(--cor-secundaria); display: flex; align-items: center; gap: 5px; margin-right: 10px;">
+                <span id="sync-status-dot" style="width: 8px; height: 8px; background: var(--cor-sucesso); border-radius: 50%;"></span>
+                <span id="sync-status-text">Sincronizado</span>
+            </div>
         </div>
     </div>
 
@@ -591,11 +905,8 @@
                 <div class="form-grupo">
                     <select id="listaReceitasSalvas"></select>
                 </div>
-                <div class="botoes-receita">
-                    <button onclick="salvarReceita()" class="btn-secundario">Salvar Receita Atual</button>
-                    <button onclick="carregarReceita()">Carregar / Editar</button>
-                    <button onclick="excluirReceita()" class="btn-remover">Excluir Receita</button>
-                    <button onclick="sincronizarPrecosComDespensa()" style="background-color: var(--cor-secundaria); grid-column: span 3;">🔄 Atualizar Preços com a Despensa</button>
+                <div class="botoes-receita" style="grid-template-columns: 1fr;">
+                    <button onclick="carregarReceita()" style="width: 100%;">📂 Carregar / Editar Receita Selecionada</button>
                 </div>
             </div>
 
@@ -744,6 +1055,12 @@
                 <div class="preco-final-valor" id="resPrecoVenda">R$ 0,00</div>
             </div>
 
+            <div class="painel-acoes-finais" style="margin-top: 25px; padding: 20px; background: var(--cor-fundo-alt); border-radius: 12px; border: 1px solid var(--cor-borda); display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="salvarReceita()" class="btn-secundario" style="grid-column: span 2; font-size: 1.1rem; padding: 15px;">💾 Salvar / Atualizar Receita</button>
+                <button onclick="sincronizarPrecosComDespensa()" style="background-color: var(--cor-secundaria); color: white; border: none;">🔄 Sincronizar Preços</button>
+                <button onclick="excluirReceita()" class="btn-remover">🗑️ Excluir Receita</button>
+            </div>
+
             <div style="margin-top: 25px; padding: 15px; background: var(--cor-fundo-destaque-light); border: 2px solid var(--cor-borda-destaque-light); border-radius: 12px;">
                 <h3 style="color: var(--cor-destaque); margin-bottom: 10px;">⚖️ Escalonar Produção (Multiplicar)</h3>
                 <p style="font-size: 0.85rem; margin-bottom: 15px;">Aumente as quantidades para encomendas grandes.</p>
@@ -838,6 +1155,36 @@
                     </div>
                     <p style="margin-top: 10px; font-size: 0.8rem; color: var(--cor-secundaria);">Converta rapidamente medidas de peso e volume para suas receitas.</p>
                 </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: var(--cor-fundo-alt); border-radius: 12px; border: 1px dashed var(--cor-borda);">
+                    <h3 style="margin-bottom: 15px;">💾 Backup e Segurança</h3>
+                    <p style="color: var(--cor-secundaria); font-size: 0.85rem; margin-bottom: 1.5rem;">
+                        Salve uma cópia de segurança dos seus dados ou restaure um backup anterior.
+                    </p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="exportarBackup()" class="btn-secundario" style="flex: 1; min-width: 150px;">📥 Exportar (JSON)</button>
+                        <button onclick="document.getElementById('importarArquivo').click()" style="background-color: var(--cor-principal); color: var(--cor-fundo-painel); border: 1px solid var(--cor-secundaria); flex: 1; min-width: 150px;">📤 Importar Backup</button>
+                        <input type="file" id="importarArquivo" accept=".json" style="display: none;" onchange="importarBackup(event)">
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: var(--cor-fundo-alt); border-radius: 12px; border: 1px solid var(--cor-borda);">
+                    <h3 style="margin-bottom: 15px;">⚙️ Preferências e Conta</h3>
+                    <div class="area1-grid">
+                        <div class="form-grupo">
+                            <label>Personalização do Tema</label>
+                            <select id="seletorTema" onchange="alterarTema(this.value)">
+                                <option value="light">☀️ Claro</option>
+                                <option value="dark">🌙 Escuro (Cinza)</option>
+                                <option value="black">🌑 Alto Contraste (Preto)</option>
+                            </select>
+                        </div>
+                        <div class="form-grupo">
+                            <label>Sessão Atual</label>
+                            <button onclick="logout()" class="btn-remover" style="width: 100%;">🚪 Encerrar Sessão (Sair)</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -887,7 +1234,12 @@
             </div>
 
             <div class="painel">
-                <h2>📋 Itens na Despensa</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; border-bottom: 1px solid var(--cor-borda); padding-bottom: 0.6rem;">
+                    <h2 style="border: none; margin: 0;">📋 Itens na Despensa</h2>
+                    <div style="position: relative; width: 200px;">
+                        <input type="text" id="buscaDespensa" placeholder="🔍 Buscar..." oninput="filtrarDespensa()" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; border-radius: 20px;">
+                    </div>
+                </div>
                 <div class="table-container">
                     <table style="width: 100%;">
                         <thead>
@@ -943,7 +1295,12 @@
             </div>
 
             <div class="painel">
-                <h2>📋 Seus Clientes</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; border-bottom: 1px solid var(--cor-borda); padding-bottom: 0.6rem;">
+                    <h2 style="border: none; margin: 0;">📋 Seus Clientes</h2>
+                    <div style="position: relative; width: 200px;">
+                        <input type="text" id="buscaClientes" placeholder="🔍 Buscar..." oninput="filtrarClientes()" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; border-radius: 20px;">
+                    </div>
+                </div>
                 <div class="table-container">
                     <table style="width: 100%;">
                         <thead>
@@ -1115,8 +1472,17 @@
         const container = document.getElementById('notification-container');
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
+        
+        let icon = '✨';
+        if (type === 'success') icon = '✅';
+        if (type === 'error') icon = '❌';
+        if (type === 'info') icon = 'ℹ️';
+
         notification.innerHTML = `
-            <span>${message}</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span>${icon}</span>
+                <span>${message}</span>
+            </div>
             <button class="notification-close" onclick="this.parentElement.remove()">&times;</button>
         `;
         container.appendChild(notification);
@@ -1160,6 +1526,24 @@
     let listaClientes = [];
     let itensPedidoAtual = [];
     let graficoFinanceiroObj = null;
+
+    // --- Funções de UI (Skeleton Screens - Pro Features) ---
+    function mostrarSkeletons() {
+        // Home Dash Cards
+        document.getElementById('homeLucroPorHora').innerHTML = '<span class="skeleton" style="width: 100px; height: 1.6rem;"></span>';
+        document.getElementById('homeDoceDestaque').innerHTML = '<span class="skeleton" style="width: 150px; height: 1.2rem;"></span>';
+        document.getElementById('homeTempoTotal').innerHTML = '<span class="skeleton" style="width: 80px; height: 1.6rem;"></span>';
+        
+        // Home Summary
+        document.getElementById('homeQtdPedidos').innerHTML = '<span class="skeleton" style="width: 30px; height: 1rem;"></span>';
+        document.getElementById('homeQtdClientes').innerHTML = '<span class="skeleton" style="width: 30px; height: 1rem;"></span>';
+        document.getElementById('homeCustoIngredientes').innerHTML = '<span class="skeleton" style="width: 80px; height: 1rem;"></span>';
+        document.getElementById('homeCustoMaoObra').innerHTML = '<span class="skeleton" style="width: 80px; height: 1rem;"></span>';
+        document.getElementById('homeLucroLiquido').innerHTML = '<span class="skeleton" style="width: 100px; height: 1.35rem;"></span>';
+
+        // Alertas
+        document.getElementById('homeAlertasEstoque').innerHTML = '<div class="skeleton" style="width: 100%; height: 50px; border-radius: 8px;"></div>';
+    }
 
     function atualizarDashboardHome() {
         const inputMesAno = document.getElementById('filtroMesAno');
@@ -1234,25 +1618,60 @@
         }
         document.getElementById('homeDoceDestaque').innerText = melhorDoce;
 
-        // 4. Alertas de Estoque na Home
+        // 4. Alertas de Estoque na Home e Badge Global
         const areaAlertas = document.getElementById('homeAlertasEstoque');
+        const badgeEstoque = document.getElementById('badge-estoque');
         areaAlertas.innerHTML = '';
+        
         const itensCriticos = listaIngredientesDespensa.filter(ing => parseFloat(ing.current_stock) <= parseFloat(ing.min_stock));
         
         if (itensCriticos.length === 0) {
             areaAlertas.innerHTML = '<p style="color: var(--cor-sucesso); font-size: 0.9rem;">✅ Tudo ok! Estoque abastecido.</p>';
+            if (badgeEstoque) badgeEstoque.style.display = 'none';
         } else {
+            if (badgeEstoque) {
+                badgeEstoque.style.display = 'block';
+                badgeEstoque.innerText = itensCriticos.length;
+            }
+            
             itensCriticos.slice(0, 3).forEach(ing => {
-                areaAlertas.innerHTML += `<div style="color: var(--cor-erro); font-size: 0.85rem; margin-bottom: 5px;">⚠️ <strong>${ing.name}</strong> está acabando (${ing.current_stock}${ing.unit})</div>`;
+                areaAlertas.innerHTML += `
+                    <div style="display: flex; align-items: center; gap: 8px; background: var(--cor-fundo-erro-light); padding: 8px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--cor-erro);">
+                        <span style="font-size: 1.2rem;">⚠️</span>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 0.85rem; color: var(--cor-principal);">${ing.name}</div>
+                            <div style="font-size: 0.75rem; color: var(--cor-texto-erro);">Estoque: ${ing.current_stock}${ing.unit} (Mín: ${ing.min_stock})</div>
+                        </div>
+                    </div>`;
             });
-            if (itensCriticos.length > 3) areaAlertas.innerHTML += `<p style="font-size: 0.75rem; color: var(--cor-secundaria);">+ ${itensCriticos.length - 3} itens em falta...</p>`;
+            if (itensCriticos.length > 3) areaAlertas.innerHTML += `<p style="font-size: 0.75rem; color: var(--cor-secundaria); text-align: center; margin-top: 5px;">+ ${itensCriticos.length - 3} outros itens em falta...</p>`;
+        }
+    }
+
+    function filtrarClientes() {
+        const termo = document.getElementById('buscaClientes').value.toLowerCase();
+        const tbody = document.getElementById('listaClientes');
+        if (!tbody) return;
+        
+        const linhas = tbody.getElementsByTagName('tr');
+        for (let linha of linhas) {
+            const nome = linha.cells[0].textContent.toLowerCase();
+            const contato = linha.cells[1].textContent.toLowerCase();
+            if (nome.includes(termo) || contato.includes(termo)) {
+                linha.style.display = "";
+            } else {
+                linha.style.display = "none";
+            }
         }
     }
 
     // --- Funções de Clientes (v1.1 CRM) ---
     async function carregarClientes() {
+        const token = localStorage.getItem('appTrufas_token');
         try {
-            const response = await fetch('/api/clients');
+            const response = await fetch('/api/clients', {
+                headers: { 'Authorization': token }
+            });
             if (response.ok) {
                 listaClientes = await response.json();
                 atualizarTabelaClientes();
@@ -1277,6 +1696,7 @@
     }
 
     async function salvarCliente() {
+        const token = localStorage.getItem('appTrufas_token');
         const name = document.getElementById('clienteNome').value;
         const phone = document.getElementById('clienteTelefone').value;
         const birthday = document.getElementById('clienteAniversario').value;
@@ -1293,7 +1713,10 @@
         try {
             const response = await fetch('/api/clients', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
                 body: JSON.stringify(client)
             });
 
@@ -1309,8 +1732,12 @@
 
     async function excluirCliente(id) {
         if (!confirm("Excluir este cliente? Isso não removerá os pedidos já feitos por ele.")) return;
+        const token = localStorage.getItem('appTrufas_token');
         try {
-            const response = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/clients/${id}`, { 
+                method: 'DELETE',
+                headers: { 'Authorization': token }
+            });
             if (response.ok) {
                 showNotification("Cliente removido.");
                 carregarClientes();
@@ -1334,9 +1761,9 @@
             const niver = cli.birthday ? new Date(cli.birthday).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'}) : '-';
             tbody.innerHTML += `
                 <tr>
-                    <td><strong>${cli.name}</strong><br><small style="color: var(--cor-secundaria)">${cli.notes || ''}</small></td>
-                    <td>${cli.phone || '-'}</td>
-                    <td>${niver}</td>
+                    <td data-label="Nome"><strong>${cli.name}</strong><br><small style="color: var(--cor-secundaria)">${cli.notes || ''}</small></td>
+                    <td data-label="Contato">${cli.phone || '-'}</td>
+                    <td data-label="Aniversário">${niver}</td>
                     <td>
                         <div style="display: flex; gap: 5px;">
                             <button class="btn-secundario" onclick="verHistoricoCliente(${cli.id})" title="Ver Histórico" style="padding: 5px 10px; width: auto;">📜</button>
@@ -1380,14 +1807,34 @@
         });
     }
 
+    function filtrarDespensa() {
+        const termo = document.getElementById('buscaDespensa').value.toLowerCase();
+        const tbody = document.getElementById('listaDespensa');
+        if (!tbody) return;
+        
+        const linhas = tbody.getElementsByTagName('tr');
+        for (let linha of linhas) {
+            const nome = linha.cells[0].textContent.toLowerCase();
+            if (nome.includes(termo)) {
+                linha.style.display = "";
+            } else {
+                linha.style.display = "none";
+            }
+        }
+    }
+
     // --- Funções da Despensa (v1.1) ---
     async function carregarIngredientesDespensa() {
+        const token = localStorage.getItem('appTrufas_token');
         try {
-            const response = await fetch('/api/ingredients');
+            const response = await fetch('/api/ingredients', {
+                headers: { 'Authorization': token }
+            });
             if (response.ok) {
                 listaIngredientesDespensa = await response.json();
                 atualizarTabelaDespensa();
                 atualizarDropdownDespensa();
+                atualizarDashboardHome(); // Atualiza alertas e badge
             }
         } catch (e) {
             console.error("Erro ao carregar despensa:", e);
@@ -1395,6 +1842,7 @@
     }
 
     async function salvarIngredienteDespensa() {
+        const token = localStorage.getItem('appTrufas_token');
         const nome = document.getElementById('despensaNome').value;
         const preco = parseFloat(document.getElementById('despensaPreco').value);
         const peso = parseFloat(document.getElementById('despensaPeso').value);
@@ -1419,7 +1867,10 @@
         try {
             const response = await fetch('/api/ingredients', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
                 body: JSON.stringify(ingrediente)
             });
 
@@ -1435,8 +1886,12 @@
 
     async function excluirIngredienteDespensa(id) {
         if (!confirm("Deseja realmente excluir este ingrediente da despensa?")) return;
+        const token = localStorage.getItem('appTrufas_token');
         try {
-            const response = await fetch(`/api/ingredients/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/ingredients/${id}`, { 
+                method: 'DELETE',
+                headers: { 'Authorization': token }
+            });
             if (response.ok) {
                 showNotification("Ingrediente removido.");
                 carregarIngredientesDespensa();
@@ -1463,9 +1918,9 @@
             
             tbody.innerHTML += `
                 <tr style="${emFalta ? 'background-color: var(--cor-fundo-erro-light);' : ''}">
-                    <td>${ing.name} ${emFalta ? '<span title="Estoque Baixo" style="color: var(--cor-erro);">⚠️</span>' : ''}</td>
-                    <td>${formatarMoeda(parseFloat(ing.price))}</td>
-                    <td>
+                    <td data-label="Ingrediente">${ing.name} ${emFalta ? '<span title="Estoque Baixo" style="color: var(--cor-erro);">⚠️</span>' : ''}</td>
+                    <td data-label="Preço/Emb.">${formatarMoeda(parseFloat(ing.price))}</td>
+                    <td data-label="Estoque">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-weight: bold; color: ${emFalta ? 'var(--cor-erro)' : 'var(--cor-sucesso)'}">${estoqueAtual} ${ing.unit}</span>
                             <span style="font-size: 0.75rem; color: var(--cor-secundaria);">Min: ${estoqueMinimo}</span>
@@ -1572,6 +2027,7 @@
 
     // --- Sistema de Login e Autenticação ---
     async function realizarLogin() {
+        const username = 'admin'; // Padrão
         const password = document.getElementById('login-password').value;
         const btn = document.getElementById('btn-login');
         const erro = document.getElementById('login-erro');
@@ -1584,7 +2040,7 @@
             const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password })
+                body: JSON.stringify({ username, password })
             });
 
             const data = await response.json();
@@ -1595,6 +2051,7 @@
                 document.getElementById('app-content').style.display = 'block';
                 carregarDadosDoBanco();
             } else {
+                erro.innerText = data.message || 'Senha incorreta!';
                 erro.style.display = 'block';
             }
         } catch (e) {
@@ -1627,6 +2084,8 @@
         const token = localStorage.getItem('appTrufas_token');
         const headers = { 'Authorization': token };
 
+        mostrarSkeletons(); // Inicia com skeletons (Pro Feature)
+
         try {
             const r = await fetch('/api/store/livroReceitas', { headers });
             if (r.status === 401) return logout();
@@ -1652,6 +2111,7 @@
             livroDeReceitas = JSON.parse(localStorage.getItem('appTrufas_livroReceitas')) || {};
             listaPedidos = JSON.parse(localStorage.getItem('appTrufas_pedidos')) || [];
             listaGastos = JSON.parse(localStorage.getItem('appTrufas_gastos')) || [];
+            atualizarDashboardHome();
         }
     }
 
@@ -1675,7 +2135,6 @@
     localStorage.setItem = function(key, value) {
         _originalSetItem.apply(this, arguments);
         try {
-            if (key === 'appTrufas_livroReceitas') salvarNoBanco('livroReceitas', JSON.parse(value));
             if (key === 'appTrufas_pedidos') salvarNoBanco('pedidos', JSON.parse(value));
             if (key === 'appTrufas_gastos') salvarNoBanco('gastos', JSON.parse(value));
         } catch(e) {}
@@ -1857,7 +2316,7 @@
                     }
                 }
 
-                tbody.innerHTML += `<tr><td>${ing.nome}</td><td>${formatarMoeda(ing.precoEmb)}${avisoPreco}</td><td>${ing.pesoEmb}${ing.unidade || ''}</td><td>${ing.qtdUsada}${ing.unidadeUsada || ''}</td><td><strong>${formatarMoeda(ing.custoReal)}</strong></td><td><div style="display: flex; gap: 5px;"><button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarIngrediente(${ing.id})">Editar</button><button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerIngrediente(${ing.id})">Remover</button></div></td></tr>`;
+                tbody.innerHTML += `<tr><td data-label="Ingrediente">${ing.nome}</td><td data-label="Preço Emb.">${formatarMoeda(ing.precoEmb)}${avisoPreco}</td><td data-label="Peso Emb.">${ing.pesoEmb}${ing.unidade || ''}</td><td data-label="Qtd. Usada">${ing.qtdUsada}${ing.unidadeUsada || ''}</td><td data-label="Custo Real"><strong>${formatarMoeda(ing.custoReal)}</strong></td><td><div style="display: flex; gap: 5px;"><button class="btn-secundario" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="editarIngrediente(${ing.id})">Editar</button><button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerIngrediente(${ing.id})">Remover</button></div></td></tr>`;
             });
         }
         calcularValores(custoTotalDosIngredientes);
@@ -2225,7 +2684,7 @@ Agradecemos a preferência!`;
         let totalPedidoVenda = 0;
         itensPedidoAtual.forEach(item => {
             totalPedidoVenda += item.subtotalVenda;
-            tbody.innerHTML += `<tr><td>${item.receita}</td><td>${item.qtd}</td><td>${formatarMoeda(item.subtotalVenda)}</td><td><button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerItemPedido(${item.id})">Remover</button></td></tr>`;
+            tbody.innerHTML += `<tr><td data-label="Item">${item.receita}</td><td data-label="Qtd">${item.qtd}</td><td data-label="Subtotal (Venda)">${formatarMoeda(item.subtotalVenda)}</td><td><button class="btn-remover" style="padding: 5px 10px; font-size: 0.8em; width: auto;" onclick="removerItemPedido(${item.id})">Remover</button></td></tr>`;
         });
         document.getElementById('resTotalPedido').innerText = formatarMoeda(totalPedidoVenda);
     }
@@ -2262,10 +2721,10 @@ Agradecemos a preferência!`;
             
             tbody.innerHTML += `
                 <tr>
-                    <td><strong>${pedido.cliente}</strong></td>
-                    <td>${pedido.dataEntrega || '-'}</td>
-                    <td><strong>${formatarMoeda(pedido.totalVenda)}</strong></td>
-                    <td>
+                    <td data-label="Cliente"><strong>${pedido.cliente}</strong></td>
+                    <td data-label="Data">${pedido.dataEntrega || '-'}</td>
+                    <td data-label="Valor Total"><strong>${formatarMoeda(pedido.totalVenda)}</strong></td>
+                    <td data-label="Status">
                         <select onchange="alterarStatusPedido(${pedido.id}, this.value)" 
                                 style="background-color: ${statusCor}; color: white; border-radius: 20px; padding: 4px 8px; border: none; font-size: 0.8rem; font-weight: bold; cursor: pointer;">
                             <option value="Pendente" ${pedido.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
@@ -2295,6 +2754,7 @@ Agradecemos a preferência!`;
 
     async function baixarEstoqueDoPedido(pedido) {
         let erros = 0;
+        const token = localStorage.getItem('appTrufas_token');
         for (const item of pedido.itens) {
             const dataReceita = getReceitaData(item.nome);
             if (!dataReceita || !dataReceita.ingredientes) continue;
@@ -2309,7 +2769,10 @@ Agradecemos a preferência!`;
                     try {
                         const response = await fetch(`/api/ingredients/${ing.pantryId}/stock`, {
                             method: 'PATCH',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': token
+                            },
                             body: JSON.stringify({ amount: consumoTotal })
                         });
                         if (!response.ok) erros++;
@@ -2396,7 +2859,7 @@ Agradecemos a preferência!`;
         if (tbodyGastos) {
             tbodyGastos.innerHTML = "";
             gastosDoMes.forEach(g => { 
-                tbodyGastos.innerHTML += `<tr><td>${g.data}</td><td>${g.descricao}</td><td>${formatarMoeda(g.valor)}</td><td><button class="btn-remover" onclick="removerGastoExtra(${g.id})" style="padding: 5px 10px; width: auto;">🗑️</button></td></tr>`; 
+                tbodyGastos.innerHTML += `<tr><td data-label="Data">${g.data}</td><td data-label="Descrição">${g.descricao}</td><td data-label="Valor">${formatarMoeda(g.valor)}</td><td><button class="btn-remover" onclick="removerGastoExtra(${g.id})" style="padding: 5px 10px; width: auto;">🗑️</button></td></tr>`; 
             });
         }
 

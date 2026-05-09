@@ -9,6 +9,26 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Configurações do Telegram
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+async function notifyTelegram(message) {
+    try {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: message,
+                parse_mode: 'Markdown'
+            })
+        });
+    } catch (err) {
+        console.error("Erro ao enviar notificação Telegram:", err.message);
+    }
+}
+
 // Configuração do PostgreSQL
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -446,4 +466,5 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`=========================================`);
     console.log(`🚀 La-Doces v1.1 (TESTE) rodando na porta ${PORT}`);
     console.log(`=========================================`);
+    notifyTelegram(`🚀 *La-trufa Online!* \nO servidor foi iniciado com sucesso na porta ${PORT}.`);
 });

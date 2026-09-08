@@ -26,6 +26,18 @@ Como a aplicação é totalmente baseada no lado do cliente, existem duas formas
 ### 1. Execução Local (Simples)
 Basta clonar o repositório e abrir o arquivo principal no seu navegador:
 ```bash
-git clone [https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO.git](https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO.git)
-cd NOME_DO_REPOSITORIO
-# Abra o arquivo index.html no navegador
+git clone https://github.com/Blesyng/La-trufa.git
+cd La-trufa
+# Abra o arquivo la-doces-app.html no navegador
+```
+
+### 2. Execução com Docker
+
+O repositório inclui Dockerfile e docker-compose.yml para subir a aplicação junto do backend Node.js:
+
+```bash
+cp .env.example .env
+docker compose up -d
+```
+
+Os scripts deploy.sh e backup_db.sh automatizam a publicação e o backup do banco.
